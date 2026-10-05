@@ -1,0 +1,22 @@
+services:
+  educlassv2:
+    container_name: educlassv2
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_REPOSITORY_NAME: educlassv2
+        APP_DIRECTORY: .
+        EXPOSE_PORT: 5173
+    volumes:
+      - .:/educlassv2 # Mount source code
+      - /educlassv2/node_modules  # Avoid overwriting node_modules
+    ports:
+      - "5175:5173"
+    command: npm run dev -- --host 0.0.0.0
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
