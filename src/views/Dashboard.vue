@@ -3,9 +3,8 @@ import { ref, computed } from 'vue'
 import { useStudentsStore } from '../stores/students'
 import { Doughnut } from 'vue-chartjs'
 import { Users, Layers } from 'lucide-vue-next'
-import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, ArcElement } from 'chart.js'
+import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement } from 'chart.js'
 import AppLayout from '../components/AppLayout.vue'
-import StudentModal from '../components/StudentModal.vue'
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement)
 
@@ -119,7 +118,7 @@ function handleLookup() {
 <template>
   <AppLayout page-name="Dashboard">
   <div class="overflow-hidden h-40 mb-6 shrink-0">
-    <img src="/bannerv2.png"
+    <img src="/bannerv2.webp"
          alt="banner"
          class="w-full h-full object-cover"
          />
