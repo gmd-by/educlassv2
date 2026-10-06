@@ -15,8 +15,10 @@ const notFound = ref(false)
 const totalStudents = computed(() => studentsStore.students.length)
 const totalSections = computed(() => studentsStore.sections.length)
 const chartColors = [
-    '#dc2626', '#65a30d', '#d97706', '#0f766e', '#eab308', '#1e40af', '#78716c', '#c026d3'
+    '#b91c1c', '#65a30d', '#d97706', '#0f766e', '#eab308', '#1e40af', '#78716c', '#c026d3'
 ]
+
+const circumference = 2 * Math.PI * 36
 
 const studentsPerSection = computed(() => {
   return studentsStore.sections.map((section) => {
@@ -62,13 +64,6 @@ const doughnutOptions = {
   plugins: { legend: { display: false }, tooltip: { enabled: false } },
 }
 
-const chartOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: { legend: { display: false }, tooltip: { enabled: false } },
-  scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
-}
-
 const studentsPerCourse = computed(() => {
   const courses = [...new Set(studentsStore.students.map((s) => s.course))]
   return courses.map((course) => {
@@ -93,6 +88,27 @@ const expandedIds = ref([])
 function isExpanded(id) {
   return expandedIds.value.includes(id)
 }
+
+function buildSlices(items, keyName) {
+  let total = 0
+  items.forEach((item) => {
+    total = total + item.count
+  })
+  if (total === 0 ) return []
+  let startAt = 0
+  return items.map((item) => {
+    const length = (item.count / total) * circumference
+    const slice = {
+      key: item[keyName],
+      length: length,
+      offset: -startAt,
+    }
+    startAt = startAt + length
+    return slice
+  })
+}
+const courseSlices = computed(() => buildSlices(studentsPerCourse.value, 'course'))
+const sectionSlices = computed(() => buildSlices(studentsPerSection.value, 'id'))
 
 function toggleExpanded(id) {
   if (isExpanded(id)) {
@@ -123,37 +139,47 @@ function handleLookup() {
          class="w-full h-full object-cover"
          />
     </div>
-
-    <!-- stats START -->
+    <!-- I. stats START -->
     <div class="w-full mb-6 px-[25px]">
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <!-- total students START -->
+
+        <!-- II. total students START -->
         <div class="relative overflow-hidden bg-white rounded shadow p-4 h-24 px-6">
           <p class="text-2xl font-semibold text-gray-800">{{ totalStudents }}</p>
           <p class="text-sm text-emerald-700 font-medium">TOTAL STUDENTS</p>
           <Users class="absolute -right-2 -bottom-4 h-20 w-20 text-emerald-700 opacity-20 pointer-events-none"/>
         </div>
-        <!-- total students END -->
-        <!-- sections START -->
+        <!-- II. total students END -->
+
+        <!-- III. sections START -->
         <div class="relative overflow-hidden bg-white rounded shadow p-4 h-24 px-6">
           <p class="text-2xl font-semibold text-gray-800">{{ totalSections }}</p>
           <p class="text-sm text-emerald-700 font-medium">SECTIONS</p>
           <Layers class="absolute -right-2 -bottom-4 h-20 w-20 text-emerald-700 opacity-20 pointer-events-none"/>
         </div>
-        <!-- sections END -->
-        <!-- students per course (doughnut) START -->
-        <div class="bg-white rounded shadow flex flex-col overflow-hidden">
+        <!-- III. sections END -->
+
+        <!-- IV. students per course (doughnut) START -->
+        <div class="bg-white rounded shadow overflow-hidden flex flex-col">
           <h2 class="bg-emerald-700 text-white font-medium text-sm px-4 py-2 border-b border-emerald-700">
             Students per course
           </h2>
           <div class="p-4 flex flex-col sm:flex-row items-center gap-4 flex-1">
-            <div class="relative h-24 w-24 shrink-0">
-              <Doughnut :data="courseChartData"
-                        :options="doughnutOptions"/>
-              </div>
+        <div class="relative h-24 w-24 shrink-0">
+          <svg viewBox="0 0 100 100" class="h-full w-full -rotate-90">
+            <circle v-for="(slice, index) in courseSlices"
+                    :key="slice.key"
+                    cx="50" cy="50" r="36"
+                    fill="none"
+                    stroke-width="16"
+                    :stroke="chartColors[index]"
+                    :stroke-dasharray="`${slice.length} ${circumference - slice.length}`"
+                    :stroke-dashoffset="slice.offset"/>
+          </svg>
+        </div>
             <ul class="w-full sm:flex-1">
               <li v-for="(item, index) in studentsPerCourse"
-                  :key="item.courrse"
+                  :key="item.course"
                   class="flex justify-between py-1 text-xs">
                 <span class="flex items-center gap-2 text-gray-600">
                   <span class="h-2.5 w-2.5 rounded-full shrink-0"
@@ -163,18 +189,27 @@ function handleLookup() {
                 <span class="font-semibold text-gray-800">{{ item.count }}</span>
               </li>
             </ul>
-            </div>
           </div>
-        <!-- students per course (doughnut) END -->
-        <!-- students per section (doughnut) START -->
-        <div class="bg-white rounded shadow flex flex-col overflow-hidden">
-          <h2 class="bg-emerald-700 text-white font-medium text-sm px-4 py-2 border-b border-emerald-700">
+        </div>
+        <!-- IV. students per course (doughnut) END -->
+
+        <!-- V. students per section (doughnut) START -->
+        <div class="bg-white rounded shadow overflow-hidden flex flex-col">
+          <h2 class="bg-emerald-100 text-emerald-800 font-medium text-sm px-4 py-3 border-b border-emerald-700">
             Students per section
           </h2>
           <div class="p-4 flex flex-col sm:flex-row items-center gap-4 flex-1">
             <div class="relative h-24 w-24 shrink-0">
-              <Doughnut :data="sectionChartData"
-                        :options="doughnutOptions"/>
+              <svg viewBox="0 0 100 100" class="h-full w-full -rotate-90">
+                <circle v-for="(slice, index) in sectionSlices"
+                        :key="slice.key"
+                        cx="50" cy="50" r="36"
+                        fill="none"
+                        stroke-width="16"
+                        :stroke="chartColors[index]"
+                        :stroke-dasharray="`${slice.length} ${circumference - slice.length}`"
+                        :stroke-dashoffset="slice.offset"/>
+              </svg>
             </div>
             <ul class="w-full sm:flex-1">
               <li v-for="(section, index) in studentsPerSection"
@@ -185,15 +220,15 @@ function handleLookup() {
                         :style="{ backgroundColor: chartColors[index] }"></span>
                   {{ section.label }}
                 </span>
-                <span class="font-semibold text-gray-800">{{ section.count }}</span>
+                <span class="font-semibold text=gray-800">{{ section.count }}</span>
               </li>
             </ul>
           </div>
         </div>
-        <!-- students per section (doughnut) END -->
+        <!-- V. students per section (doughnut) END -->
     </div>
     </div>
-    <!-- stats END -->
+    <!-- I. stats END -->
 
     <div class="w-full mb-6 px-[25px]">
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
