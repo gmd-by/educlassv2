@@ -108,134 +108,131 @@ function handleLookup() {
         <!-- I. left column START -->
         <div class="lg:col-span-2 flex flex-col gap-4">
 
-          <!-- II. student search START -->
+          <!-- student search START -->
           <div class="bg-white rounded shadow overflow-hidden">
             <h2 class="bg-emerald-100 text-emerald-800 font-medium text-sm px-4 py-2 border-b border-emerald-200">
               Quick Search
             </h2>
             <div class="p-4">
-              <p class="font-light text-gray-500 text-sm mb-3">Enter a student ID number:</p>
+              <p class="font-light text-gray-500 text-sm mb-3">Enter a student ID number.</p>
               <div class="flex gap-2">
-                <input
-                  v-model.number="studentId"
-                  type="text"
-                  placeholder="Student ID"
-                  class="flex-1 border border-gray-300 rounded px-3 py-2"/>
-                <button
-                  @click="handleLookup()"
-                  class="bg-blue-600 text-white font-medium rounded-lg -px-4 py-2 hover:bg-blue-700">
+                <input v-model.number="studentId"
+                       type="text"
+                       placeholder="Student ID"
+                       class="flex-1 border border-gray-300 rounded px-3 py-2"/>
+                <button @click="handleLookup()"
+                        class="bg-blue-600 text-white font-medium rounded-lg px-4 py-2 hover:bg-blue:700">
                   Enter
                 </button>
-                </div>
-              <div v-if="foundStudent"
-                   class="mt-4 pt-4 border-t border-gray-200">
-                <p><span class="font-bold">Name: </span>{{ foundStudent.name }}</p>
-                <p><span class="font-bold">Student Number: </span>{{ foundStudent.id }}</p>
-                <p><span class="font-bold">Email: </span>{{ foundStudent.email }}</p>
-                <p><span class="font-bold">Academic Year: </span>{{ foundStudent.academicYear }}</p>
-                <p><span class="font-bold">Year Level: </span>{{ foundStudent.yearLevel }}</p>
-                <p><span class="font-bold">Course: </span>{{ foundStudent.course }}</p>
               </div>
+            <div v-if="foundStudent"
+                  class="mt-4 pt-4 border-t border-gray-200">
+              <p><span class="font-bold">Name:</span> {{ foundStudent.name }}</p>
+              <p><span class="font-bold">Name:</span> {{ foundStudent.name }}</p>
+              <p><span class="font-bold">Name:</span> {{ foundStudent.name }}</p>
+              <p><span class="font-bold">Name:</span> {{ foundStudent.name }}</p>
+              <p><span class="font-bold">Name:</span> {{ foundStudent.name }}</p>
+              <p><span class="font-bold">Name:</span> {{ foundStudent.name }}</p>
+            </div>
               <p v-if="notFound"
                  class="mt-4 text-red-600">
-                No student was found with that Student ID in the database. Try another.
+                No student was found with that Student ID in our database. Try another.
               </p>
             </div>
           </div>
-          <!-- II. student search END -->
+          <!-- student search END -->
 
-          <!-- III. start cards START -->
+          <!-- layout (2x2) START -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-            <!-- IV. total students START -->
+            <!-- total students START -->
             <div class="relative overflow-hidden bg-white rounded shadow p-4 h-24">
               <p class="text-2xl font-semibold text-gray-800">{{ totalStudents }}</p>
               <p class="text-sm text-gray-500 font-medium">Total Students</p>
-              <Users class="absolute -right-2 -bottom-4 h-20 w-20 text-emerald-600 opacity-25 pointer-events-none"/>
+              <Users class="absolute -right-2 -bottom-4 h-20 w-20 text-emerald-600 opacity-20 pointer-events-none"/>
             </div>
-            <!-- IV. total students END -->
+            <!-- total students END -->
 
-            <!-- V. sections START -->
-            <div class="relative overflow-hidden bg-white roudned shadow p-4 h-24">
-              <p class="text 2xl font-semibold text-gray-800">{{ totalSections }}</p>
+            <!-- sections START -->
+            <div class="relative overflow-hidden bg-white rounded shadow p-4 h-24">
+              <p class="text-2xl font-semibold text-gray-800">{{ totalSections }}</p>
               <p class="text-sm text-gray-500 font-medium">Sections</p>
-              <Layers class="absolute -right-2 -bottom-4 h-20 w-30 text-emerald-600 opacity-25 pointer-events-none"/>
+              <Layers class="absolute -right-2 -bottom-4 h-20 w-20 text-emerald-600 opacity-20 pointer-events-none"/>
             </div>
-            <!-- V. sections END -->
-          </div>
-          <!-- III. stat cards END -->
+            <!-- sections END -->
 
-          <!-- VI. students per course (doughnut) START -->
-          <div class="bg-white rounded shadow overflow-hidden flex flex-col">
-            <h2 class="bg-emerald-100 text-emerald-800 font-medium text-sm px-4 py-2 border-b border-emerald-200">
-              Students per Course
-            </h2>
-            <div class="p-4 flex flex-col sm:flex-row items-center gap-4 flex-1">
-              <div class="relative h-24 w-24 shrink-0">
-                <svg viewBox="0 0 100 100" class="h-full w-full -rotate-90">
-                  <circle v-for="(slice, index) in courseSlices"
-                          :key="slice.key"
-                          cx="50" cy="50" r="36"
-                          fill="none"
-                          stroke-width="16"
-                          :stroke="chartColors[index]"
-                          :stroke-dasharray="`${slice.length} ${circumference - slice.length}`"
-                          :stroke-dashoffset="slice.offset"/>
-                </svg>
+            <!-- sections per course (doughnut) START -->
+            <div class="bg-white rounded shadow overflow-hidden flex flex-col">
+              <h2 class="bg-emerald-100 text-emerald-800 font-medium text-sm px-4 py-2 border-b border-emerald-200">
+                Students per Course
+              </h2>
+              <div class="p-4 flex flex-col xl:flex-row items-center gap-4 flex-1">
+                <div class="relative h-24 w-24 shrink-0">
+                  <svg viewBox="0 0 100 100" class="h-full w-full -rotate-90">
+                    <circle v-for="(slice, index) in courseSlices"
+                            :key="slice.key"
+                            cx="50" cy="50" r="36"
+                            fill="none"
+                            stroke-width="16"
+                            :stroke="chartColors[index]"
+                            :stroke-dasharray="`${slice.length} ${circumference - slice.length}`"
+                            :stroke-dashoffset="slice.offset"/>
+                  </svg>
+                </div>
+                <ul class="w-full xl:flex-1">
+                  <li v-for="(item, index) in studentsPerCourse"
+                      :key="item.course"
+                      class="flex justify-between gap-3 py-1 text-xs">
+                    <span class="flex items-center gap-2 text-gray-600">
+                      <span class="h-2.5 w-2.5 rounded-full shrink-0"
+                            :style="{ backgroundColor: chartColors[index] }"></span>
+                      {{ item.course }}
+                    </span>
+                    <span class="font-semibold text-gray-800">{{ item.count }}</span>
+                  </li>
+                </ul>
               </div>
-              <ul class="w-full sm:flex-1">
-                <li v-for="(item, index) in studentsPerCourse"
-                    :key="item.course"
-                    class="flex justify-between py-1 text-xs">
-                  <span class="flex items-center gap-2 text-gray-600">
-                    <span class="h-2.5 w-2.5 rounded-full shrink-0"
-                          :style="{ backgroundColor: chartColors[index] }"></span>
-                    {{ item.course }}
-                  </span>
-                  <span class="font-semibold text-gray-800">{{ item.count }}</span>
-                </li>
-              </ul>
             </div>
-          </div>
-          <!-- VI. students per course (doughnut END) -->
+            <!-- students per course (doughnut) END -->
 
-          <!-- VII. students per section (doughnut) START -->
-          <div class="bg-white rounded shadow overflow-hidden flex flex-col">
-            <h2 class="bg-emerald-100 text-emerald-800 font-medium text-sm px-4 py-2 border-b border-emerald-200">
-              Students per Section
-            </h2>
-            <div class="p-4 flex flex-col sm:flex-row items-center gap-4 flex-1">
-              <div class="relative h-24 w-24 shrink-0">
-                <svg viewBox="0 0 100 100" class="h-full w-full -rotate-90">
-                  <circle v-for="(slice, index) in sectionSlices"
-                          :key="slice.key"
-                          cx="50" cy="50" r="36"
-                          fill="none"
-                          stroke-width="16"
-                          :stroke="chartColors[index]"
-                          :stroke-dasharray="`${slice.length} ${circumference - slice.length}`"
-                          :stroke-dashoffset="slice.offset"/>
-                </svg>
+            <!-- students per section (doughnut) START -->
+            <div class="bg-white rounded shadow overflow-hidden flex flex-col">
+              <h2 class="bg-emerald-100 text-emerald-100 font-medium text-sm px-4 py-2 border-b border-emerald-200">
+                Students per Section
+              </h2>
+              <div class="p-4 flex flex-col xl:flex-row items-center gap-4 flex-1">
+                <div class="relative h-24 w-24 shrink-0">
+                  <svg viewBox="0 0 100 100" class="h-full w-full -rotate-90">
+                    <circle v-for="(slice, index) in sectionSlices"
+                            :key="slice.key"
+                            cx="50" cy="50" r="36"
+                            fill="none"
+                            stroke-width="16"
+                            :stroke="chartColors[index]"
+                            :stroke-dasharray="`${slice.length} ${circumference - slice.length}`"
+                            :stroke-dashoffset="slice.offset"/>
+                  </svg>
+                </div>
+                <ul class="w-full xl:flex-1">
+                  <li v-for="(section, index) in studentsPerSection"
+                      :key="section.id"
+                      class="flex justify-between gap-3 py-1 text-xs">
+                    <span class="flex items-center gap-2 text-gray-600">
+                      <span class="h-2.5 w-2.5 rounded-full shrink-0"
+                            :style="{ backgroundColor: chartColors[index] }"></span>
+                      {{ section.label }}
+                    </span>
+                    <span class="font-semibold text-gray-800">{{ section.count }}</span>
+                  </li>
+                </ul>
               </div>
-              <ul class="w-full sm:flex-1">
-                <li v-for="(section, index) in studentsPerSection"
-                    :key="section.id"
-                    class="flex justify-between py-1 text-xs">
-                  <span class="flex items-center gap-2 text-gray-600">
-                    <span class="h-2.5 w-2.5 rounded-full shrink-0"
-                          :style="{ backgroundColor: chartColors[index] }"></span>
-                    {{ section.label }}
-                  </span>
-                  <span class="font-semibold text-gray-800">{{ section.count }}</span>
-                </li>
-              </ul>
             </div>
+            <!-- students per section (doughnut) END -->
           </div>
-          <!-- VII. students per section (doughnut END -->
+          <!-- stats and rings (2x2) END -->
         </div>
-        <!-- I. left column END -->
-
-        <!-- VIII. news column START -->
+        <!-- left column END -->
+        <!-- news column START -->
         <div class="bg-white rounded shadow overflow-hidden">
           <h2 class="bg-emerald-100 text-emerald-800 font-medium text-sm px-4 py-2 border-b border-emerald-200">
             Announcements
@@ -254,7 +251,7 @@ function handleLookup() {
               <div class="text-right">
                 <button type="button"
                         @click="toggleExpanded(post.id)"
-                        class="text-xs text-emerald=700 hover:underline">
+                        class="text-xs text-emerald-700 hover:underline">
                   {{ isExpanded(post.id) ? 'Show less' : 'Show more...' }}
                 </button>
               </div>
@@ -262,7 +259,7 @@ function handleLookup() {
           </div>
         </div>
         <!-- VIII. news column END -->
-    </div>
+      </div>
     </div>
   </AppLayout>
 </template>
