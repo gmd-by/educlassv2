@@ -177,14 +177,22 @@ onBeforeUnmount(() => {
   <AppLayout page-name="Students">
     <div class="p-6 flex flex-col flex-1 min-h-[28rem]">
       <div class="bg-white rounded shadow flex-1 min-h-0 flex flex-col">
+
         <!-- header START -->
         <div class="relative shrink-0 rounded-t bg-emerald-600 border-emerald-700">
           <div class="absolute inset-y-0 right-0 w-64 overflow-hidden rounded-tr pointer-events-none">
-          <GraduationCap class="absolute left-25 -bottom-10 h-38 w-38 text-white opacity-80"/>
+            <svg xmlns="https://w3.org/2000/svg"
+                 viewBox="0 0 640 640"
+                 fill="currentColor"
+                 class="absolute -right-1 -bottom-15 h-48 w-48 text-white opacity-70 pointer-events-none">
+              <path d="M80 259.8L289.2 345.9C299 349.9 309.4 352 320 352C330.6 352 341 349.9 350.8 345.9L593.2 246.1C602.2 242.4 608 233.7 608 224C608 214.3 602.2 205.6 593.2 201.9L350.8 102.1C341 98.1 330.6 96 320 96C309.4 96 299 98.1 289.2 102.1L46.8 201.9C37.8 205.6 32 214.3 32 224L32 520C32 533.3 42.7 544 56 544C69.3 544 80 533.3 80 520L80 259.8zM128 331.5L128 448C128 501 214 544 320 544C426 544 512 501 512 448L512 331.4L369.1 390.3C353.5 396.7 336.9 400 320 400C303.1 400 286.5 396.7 270.9 390.3L128 331.4"/>
+            </svg>
           </div>
-          <h2 class="px-4 pt-4 font-medium text-lg text-white">Student Management</h2>
+          <h2 class="px-4 pt-4 font-medium text-lg text-white">STUDENT MANAGEMENT</h2>
+
         <!-- toolbar START -->
         <div class="flex flex-wrap items-center gap-4 px-4 py-4">
+
           <!-- class/section toggle START -->
           <div ref="sectionMenuRef"
                class="relative w-full sm:w-72">
@@ -211,6 +219,7 @@ onBeforeUnmount(() => {
             </div>
           </div>
           <!-- class/section toggle END -->
+
           <!-- columns START -->
           <div ref="columnMenuRef"
                class="relative w-full sm:w-72">

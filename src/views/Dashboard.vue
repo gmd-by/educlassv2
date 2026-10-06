@@ -26,7 +26,6 @@ const studentsPerSection = computed(() => {
   })
 })
 
-
 const studentsPerCourse = computed(() => {
   const courses = [...new Set(studentsStore.students.map((s) => s.course))]
   return courses.map((course) => {
@@ -92,16 +91,27 @@ function handleLookup() {
     notFound.value = true
   }
 }
+
+const foundFields = [
+  { key: 'name', label: 'NAME' },
+  { key: 'id', label: 'STUDENT NUMBER' },
+  { key: 'email', label: 'EMAIL' },
+  { key: 'academicYear', label: 'ACADEMIC YEAR' },
+  { key: 'yearLevel', label: 'YEAR LEVEL' },
+  { key: 'course', label: 'COURSE' }
+]
 </script>
 
 <template>
   <AppLayout page-name="Dashboard">
-  <div class="overflow-hidden h-40 mb-6 shrink-0">
-    <img src="/bannerv2.webp"
-         alt="banner"
-         class="w-full h-full object-cover"
-         />
+  <!-- banner START -->
+    <div class="relative overflow-hidden h-32 mb-6 shrink-0 bg-emerald-600">
+      <img src="/bannerlogo.svg"
+           alt=""
+           class="absolute right-2 -bottom-14 h-52 w-auto opacity-80 pointer-events-none">
     </div>
+    <!-- banner END -->
+
     <div class="w-full mb-6 px-[25px]">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
@@ -110,35 +120,48 @@ function handleLookup() {
 
           <!-- student search START -->
           <div class="bg-white rounded shadow overflow-hidden">
-            <h2 class="bg-emerald-100 text-emerald-800 font-medium text-sm px-4 py-2 border-b border-emerald-200">
-              Quick Search
-            </h2>
-            <div class="p-4">
-              <p class="font-light text-gray-500 text-sm mb-3">Enter a student ID number.</p>
-              <div class="flex gap-2">
-                <input v-model.number="studentId"
-                       type="text"
-                       placeholder="Student ID"
-                       class="flex-1 border border-gray-300 rounded px-3 py-2"/>
-                <button @click="handleLookup()"
-                        class="bg-blue-600 text-white font-medium rounded-lg px-4 py-2 hover:bg-blue:700">
-                  Enter
-                </button>
-              </div>
+               <h2 class="bg-emerald-700 text-white font-medium text-sm px-4 py-2 border-b border-emerald-700">
+                 QUICK SEARCH
+               </h2>
+          <div class="p-4">
+            <p class="text-gray-500 text-sm mb-3">Enter a student ID number.</p>
+            <div class="flex gap-2">
+              <input v-model.number="studentId"
+                     type="text"
+                     placeholder="Student ID"
+                     class="flex-1 border border-gray-300 rounded px-3 py-2 selection:bg-emerald-700"/>
+              <button @click="handleLookup()"
+                      class="bg-emerald-700 text-sm text-white font-medium rounded-lg px-4 py-2 border-b hover:bg-emerald-900">
+                Enter
+              </button>
+            </div>
             <div v-if="foundStudent"
-                  class="mt-4 pt-4 border-t border-gray-200">
-              <p><span class="font-bold">Name:</span> {{ foundStudent.name }}</p>
-              <p><span class="font-bold">Name:</span> {{ foundStudent.name }}</p>
-              <p><span class="font-bold">Name:</span> {{ foundStudent.name }}</p>
-              <p><span class="font-bold">Name:</span> {{ foundStudent.name }}</p>
-              <p><span class="font-bold">Name:</span> {{ foundStudent.name }}</p>
-              <p><span class="font-bold">Name:</span> {{ foundStudent.name }}</p>
+                 class="mt-4 pt-4 border-t border-gray-200">
+              <div class="bg-white rounded border-1 border-gray-200 overflow-hidden flex flex-col xl:flex-row">
+                <div class="flex-1 min-w-0 py-2 px-2">
+                  <table class="w-full">
+                    <tbody class="text-sm">
+                    <tr v-for="field in foundFields"
+                        :key="field.key">
+                      <td class="py-2 px-4 font-medium">{{ field.label }}</td>
+                      <td class="py-2 px-4">{{ foundStudent[field.key] }}</td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="shrink-0 flex items-center justify-center p-4 border-t border-gray-200 xl:border-t-0 xl:border-l xl:w-48">
+                  <div class="h-36 w-28 rounded bg-gray-100 border border-gray-200 flex items-center justify-center text-xs text-gray-400">
+                    No photo
+                  </div>
+                </div>
+              </div>
             </div>
-              <p v-if="notFound"
-                 class="mt-4 text-red-600">
-                No student was found with that Student ID in our database. Try another.
-              </p>
-            </div>
+            <p v-if="notFound"
+               class="mt-4 text-sm text-red-600">
+              No student was found with that Student ID in our database. Try another ID.
+            </p>
+          </div>
           </div>
           <!-- student search END -->
 
@@ -149,7 +172,12 @@ function handleLookup() {
             <div class="relative overflow-hidden bg-white rounded shadow p-4 h-24">
               <p class="text-2xl font-semibold text-gray-800">{{ totalStudents }}</p>
               <p class="text-sm text-gray-500 font-medium">Total Students</p>
-              <Users class="absolute -right-2 -bottom-4 h-20 w-20 text-emerald-600 opacity-20 pointer-events-none"/>
+              <svg xmlns="https://w3.org/2000/svg"
+                   viewBox="0 0 640 640"
+                   fill="currentColor"
+                   class="absolute -right-1 -bottom-9 h-32 w-32 text-emerald-600 opacity-20 pointer-events-none">
+                   <path d="M240 192C240 147.8 275.8 112 320 112C364.2 112 400 147.8 400 192C400 236.2 364.2 272 320 272C275.8 272 240 236.2 240 192zM448 192C448 121.3 390.7 64 320 64C249.3 64 192 121.3 192 192C192 262.7 249.3 320 320 320C390.7 320 448 262.7 448 192zM144 544C144 473.3 201.3 416 272 416L368 416C438.7 416 496 473.3 496 544L496 552C496 565.3 506.7 576 520 576C533.3 576 544 565.3 544 552L544 544C544 446.8 465.2 368 368 368L272 368C174.8 368 96 446.8 96 544L96 552C96 565.3 106.7 576 120 576C133.3 576 144 565.3 144 552L144 544z"/>
+              </svg>
             </div>
             <!-- total students END -->
 
@@ -157,14 +185,19 @@ function handleLookup() {
             <div class="relative overflow-hidden bg-white rounded shadow p-4 h-24">
               <p class="text-2xl font-semibold text-gray-800">{{ totalSections }}</p>
               <p class="text-sm text-gray-500 font-medium">Sections</p>
-              <Layers class="absolute -right-2 -bottom-4 h-20 w-20 text-emerald-600 opacity-20 pointer-events-none"/>
+              <svg xmlns="https://w3.org/2000/svg"
+                   viewBox="0 0 640 640"
+                   fill="currentColor"
+                   class="absolute -right-1 -bottom-9 h-32 w-32 text-emerald-600 opacity-20 pointer-events-none">
+                <path d="M80 259.8L289.2 345.9C299 349.9 309.4 352 320 352C330.6 352 341 349.9 350.8 345.9L593.2 246.1C602.2 242.4 608 233.7 608 224C608 214.3 602.2 205.6 593.2 201.9L350.8 102.1C341 98.1 330.6 96 320 96C309.4 96 299 98.1 289.2 102.1L46.8 201.9C37.8 205.6 32 214.3 32 224L32 520C32 533.3 42.7 544 56 544C69.3 544 80 533.3 80 520L80 259.8zM128 331.5L128 448C128 501 214 544 320 544C426 544 512 501 512 448L512 331.4L369.1 390.3C353.5 396.7 336.9 400 320 400C303.1 400 286.5 396.7 270.9 390.3L128 331.4"/>
+              </svg>
             </div>
             <!-- sections END -->
 
             <!-- sections per course (doughnut) START -->
             <div class="bg-white rounded shadow overflow-hidden flex flex-col">
-              <h2 class="bg-emerald-100 text-emerald-800 font-medium text-sm px-4 py-2 border-b border-emerald-200">
-                Students per Course
+              <h2 class="bg-emerald-700 text-white font-medium text-sm px-4 py-2 border-b border-emerald-700">
+                STUDENTS PER COURSE
               </h2>
               <div class="p-4 flex flex-col xl:flex-row items-center gap-4 flex-1">
                 <div class="relative h-24 w-24 shrink-0">
@@ -197,8 +230,8 @@ function handleLookup() {
 
             <!-- students per section (doughnut) START -->
             <div class="bg-white rounded shadow overflow-hidden flex flex-col">
-              <h2 class="bg-emerald-100 text-emerald-100 font-medium text-sm px-4 py-2 border-b border-emerald-200">
-                Students per Section
+              <h2 class="bg-emerald-700 text-white font-medium text-sm px-4 py-2 border-b border-emerald-700">
+                STUDENTS PER SECTION
               </h2>
               <div class="p-4 flex flex-col xl:flex-row items-center gap-4 flex-1">
                 <div class="relative h-24 w-24 shrink-0">
@@ -234,8 +267,8 @@ function handleLookup() {
         <!-- left column END -->
         <!-- news column START -->
         <div class="bg-white rounded shadow overflow-hidden">
-          <h2 class="bg-emerald-100 text-emerald-800 font-medium text-sm px-4 py-2 border-b border-emerald-200">
-            Announcements
+          <h2 class="bg-emerald-700 text-white font-medium text-sm px-4 py-2 border-b border-emerald-700">
+            ANNOUNCEMENTS
           </h2>
           <div class="px-4 divide-y divide-gray-200">
             <div v-for="post in posts"
