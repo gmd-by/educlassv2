@@ -1,12 +1,8 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useStudentsStore } from '../stores/students'
-import { Doughnut } from 'vue-chartjs'
 import { Users, Layers } from 'lucide-vue-next'
-import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement } from 'chart.js'
 import AppLayout from '../components/AppLayout.vue'
-
-ChartJS.register(Title, Tooltip, Legend, ArcElement)
 
 const studentId = ref('')
 const studentsStore = useStudentsStore()
@@ -30,39 +26,6 @@ const studentsPerSection = computed(() => {
   })
 })
 
-const sectionChartData = computed(() => {
-  return {
-    labels: studentsPerSection.value.map((item) => item.label),
-    datasets: [
-    { label: 'Students',
-      data: studentsPerSection.value.map((item) => item.count),
-      backgroundColor: chartColors,
-    },
-  ]
-  }
-})
-
-const courseChartData = computed(() => {
-  return {
-    labels: studentsPerCourse.value.map((item) => item.course),
-    datasets: [
-      {
-        data: studentsPerCourse.value.map((item) => item.count),
-        backgroundColor: chartColors,
-        borderWidth: 2,
-        borderColor: '#ffffff',
-        hoverOffset: 6,
-      },
-    ],
-  }
-})
-
-const doughnutOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  cutout: '65%',
-  plugins: { legend: { display: false }, tooltip: { enabled: false } },
-}
 
 const studentsPerCourse = computed(() => {
   const courses = [...new Set(studentsStore.students.map((s) => s.course))]
