@@ -31,6 +31,7 @@ function handleSignOut() {
         <hr class="border-emerald-100 opacity-25">
         <RouterLink to="/dashboard" class="block px-3 py-2 hover:bg-gray-800">Dashboard</RouterLink>
         <RouterLink to="/students" class="block px-3 py-2 hover:bg-gray-800">Students</RouterLink>
+        <RouterLink to="/announcements" class="block px-3 py-2 hover:bg-gray-800">Announcements</RouterLink>
       </nav>
 
       <button

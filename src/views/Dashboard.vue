@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useStudentsStore } from '../stores/students'
-import { Users, Layers } from 'lucide-vue-next'
+import { useAnnouncementStore } from "../stores/announcements.js";
 import AppLayout from '../components/AppLayout.vue'
 
 const studentId = ref('')
@@ -13,6 +13,8 @@ const totalSections = computed(() => studentsStore.sections.length)
 const chartColors = [
     '#b91c1c', '#65a30d', '#d97706', '#0f766e', '#eab308', '#1e40af', '#78716c', '#c026d3'
 ]
+const announcementsStore = useAnnouncementStore()
+const posts = computed(() => announcementsStore.posts)
 
 const circumference = 2 * Math.PI * 36
 
@@ -35,18 +37,6 @@ const studentsPerCourse = computed(() => {
     }
   })
 })
-
-const posts = [
-  {
-    id: 1, title: 'Midterm Schedule Released', author: 'Registrar Office', date: 'Oct 3, 2026',
-    body: 'Midterm exams will run from October 15 to 19. Check your department for the full schedule.',
-    image: '/news1.webp'},
-  { id: 2, title: 'Library Extended Hours', author: 'Library Staff', date: 'Sep 30, 2026',
-    body: 'The library will stay open until 10 PM on weekdays for the rest of the semester.',
-    image: '/news2.webp'},
-  { id: 3, title: 'Enrollment for Next Term Opens Soon', author: 'Registrar Office', date: 'Sep 28, 2026',
-    body: 'Enrollment slots for the Educlass University open November 3-6, 2026. Make sure you records are updated beforehand.' },
-]
 
 const expandedIds = ref([])
 function isExpanded(id) {
@@ -278,9 +268,8 @@ const foundFields = [
             <div v-for="post in posts"
                  :key="post.id"
                  class="py-3">
-              <img v-if="post.image"
-                   :src="post.image"
-                   :alt="post.title"
+              <img :src="post.image || '/newsplaceholder.webp'"
+                   :alt="post.image ? post.title : ''"
                    loading="lazy"
                    class="mb-2 h-32 w-full rounded object-cover">
               <div class="flex justify-between items-baseline">
