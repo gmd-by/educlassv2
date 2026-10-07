@@ -120,48 +120,50 @@ const foundFields = [
 
           <!-- student search START -->
           <div class="bg-white rounded shadow overflow-hidden">
-               <h2 class="bg-emerald-700 text-white font-medium text-sm px-4 py-2 border-b border-emerald-700">
-                 QUICK SEARCH
-               </h2>
-          <div class="p-4">
-            <p class="text-gray-500 text-sm mb-3">Enter a student ID number.</p>
-            <div class="flex gap-2">
-              <input v-model.number="studentId"
-                     type="text"
-                     placeholder="Student ID"
-                     class="flex-1 border border-gray-300 rounded px-3 py-2 selection:bg-emerald-700"/>
-              <button @click="handleLookup()"
-                      class="bg-emerald-700 text-sm text-white font-medium rounded-lg px-4 py-2 border-b hover:bg-emerald-900">
-                Enter
-              </button>
-            </div>
-            <div v-if="foundStudent"
-                 class="mt-4 pt-4 border-t border-gray-200">
-              <div class="bg-white rounded border-1 border-gray-200 overflow-hidden flex flex-col xl:flex-row">
-                <div class="flex-1 min-w-0 py-2 px-2">
-                  <table class="w-full">
-                    <tbody class="text-sm">
-                    <tr v-for="field in foundFields"
-                        :key="field.key">
-                      <td class="py-2 px-4 font-medium">{{ field.label }}</td>
-                      <td class="py-2 px-4">{{ foundStudent[field.key] }}</td>
-                    </tr>
-                    </tbody>
-                  </table>
-                </div>
+            <h2 class="bg-emerald-700 text-white font-medium text-sm px-4 py-2 border-b border-emerald-700">
+              QUICK SEARCH
+            </h2>
+            <div class="p-4">
+              <p class="text-gray-500 text-sm mb-3">Enter a student ID number.</p>
+              <div class="flex gap-2">
+                <input v-model.number="studentId"
+                       type="text"
+                       placeholder="Student ID"
+                       class="flex-1 border border-gray-300 rounded px-3 py-2 selection:bg-emerald-100"/>
+                <button @click="handleLookup()"
+                        class="bg-emerald-700 text-sm text-white font-medium rounded-lg px-4 py-2 hover:bg-emerald-900">
+                  Enter
+                </button>
+              </div>
 
-                <div class="shrink-0 flex items-center justify-center p-4 border-t border-gray-200 xl:border-t-0 xl:border-l xl:w-48">
-                  <div class="h-36 w-28 rounded bg-gray-100 border border-gray-200 flex items-center justify-center text-xs text-gray-400">
-                    No photo
+              <!-- found student (TABLE) START -->
+              <div v-if="foundStudent"
+                   class="mt-4 pt-4 text-sm border-t border-gray-200">
+                <div class="bg-white rounded border-1 border-gray-200 overflow-hidden flex flex-col xl:flex-row">
+                  <div class="flex-1 min-w-0 py-2 px-2">
+                    <table class="w-full">
+                      <tbody class="tex-sm">
+                      <tr v-for="field in foundFields"
+                          :key="field.key">
+                        <td class="py-2 px-4 font-medium">{{ field.label }}</td>
+                        <td class="py-2 px-4">{{ foundStudent[field.key ]}}</td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="shrink-0 flex items-center justify-center p-4 border-t border-gray-200 xl:border-t-0 xl:border-l xl:w-[40%]">
+                    <div class="h-42 w-42 rounded bg-gray-100 border border-gray-200 flex items-center justify-center text-xs text-gray-400">
+                      No photo
+                    </div>
                   </div>
                 </div>
               </div>
+              <!-- found student END -->
+              <p v-if="notFound"
+                 class="mt-4 text-sm text-red-600">
+                No student was found with that Student ID in our database. Try a different ID.
+              </p>
             </div>
-            <p v-if="notFound"
-               class="mt-4 text-sm text-red-600">
-              No student was found with that Student ID in our database. Try another ID.
-            </p>
-          </div>
           </div>
           <!-- student search END -->
 
@@ -171,7 +173,7 @@ const foundFields = [
             <!-- total students START -->
             <div class="relative overflow-hidden bg-white rounded shadow p-4 h-24">
               <p class="text-2xl font-semibold text-gray-800">{{ totalStudents }}</p>
-              <p class="text-sm text-gray-500 font-medium">Total Students</p>
+              <p class="text-sm text-gray-500 font-medium">TOTAL STUDENTS</p>
               <svg xmlns="https://w3.org/2000/svg"
                    viewBox="0 0 640 640"
                    fill="currentColor"
@@ -184,7 +186,7 @@ const foundFields = [
             <!-- sections START -->
             <div class="relative overflow-hidden bg-white rounded shadow p-4 h-24">
               <p class="text-2xl font-semibold text-gray-800">{{ totalSections }}</p>
-              <p class="text-sm text-gray-500 font-medium">Sections</p>
+              <p class="text-sm text-gray-500 font-medium">SECTIONS</p>
               <svg xmlns="https://w3.org/2000/svg"
                    viewBox="0 0 640 640"
                    fill="currentColor"
