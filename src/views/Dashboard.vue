@@ -15,6 +15,25 @@ const chartColors = [
 ]
 const announcementsStore = useAnnouncementStore()
 const posts = computed(() => announcementsStore.posts)
+const postsPerPage = 2
+const postPage = ref(1)
+
+const totalPostPages = computed(() => {
+  return Math.max(1, Math.ceil(posts.value.length / postsPerPage))
+})
+
+const pagedPosts = computed(() => {
+  const start = (postPage.value - 1) * postsPerPage
+  return posts.value.slice(start, start + postsPerPage)
+})
+
+function prevPostPage() {
+  if (postPage.value > 1) postPage.value--
+}
+
+function nextPostPage() {
+  if (postPage.value < totalPostPages.value) postPage.value++
+}
 
 const circumference = 2 * Math.PI * 36
 
@@ -255,17 +274,20 @@ const foundFields = [
               </div>
             </div>
             <!-- students per section (doughnut) END -->
+
           </div>
           <!-- stats and rings (2x2) END -->
+
         </div>
         <!-- left column END -->
+
         <!-- news column START -->
-        <div class="bg-white rounded shadow overflow-hidden">
+        <div class="bg-white rounded shadow overflow-hidden flex flex-col">
           <h2 class="bg-emerald-700 text-white font-medium text-sm px-4 py-2 border-b border-emerald-700">
             ANNOUNCEMENTS
           </h2>
-          <div class="px-4 divide-y divide-gray-200">
-            <div v-for="post in posts"
+          <div class="px-4 divide-y divide-gray-200 flex-1">
+            <div v-for="post in pagedPosts"
                  :key="post.id"
                  class="py-3">
               <img :src="post.image || '/newsplaceholder.webp'"
@@ -288,6 +310,32 @@ const foundFields = [
               </div>
             </div>
           </div>
+
+          <!-- pager START -->
+          <div class="flex items-center justify-between gap-2 px-4 py-3 border-t border-gray-200 text-sm text-gray-600">
+            <RouterLink to="/announcements"
+                        class="text-emerald-700 hover:underline">
+              View all
+            </RouterLink>
+            <div v-if="totalPostPages > 1"
+                 class="flex items-center gap-2">
+              <button type="button"
+                      :disabled="postPage === 1"
+                      @click="prevPostPage"
+                      class="border border-gray-300 rounded bg-white px-3 py-1 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white">
+                Newer
+              </button>
+              <span>{{ postPage }} / {{ totalPostPages }}</span>
+              <button type="button"
+                      :disabled="postPage === totalPostPages"
+                      @click="nextPostPage"
+                      class="border border-gray-300 rounded bg-white px-3 py-1 hover:bg-gray-50 disabled:cursor-not-allowed disabled:hover:bg-white">
+                Older
+              </button>
+            </div>
+          </div>
+          <!-- pager END -->
+
         </div>
         <!-- VIII. news column END -->
       </div>
