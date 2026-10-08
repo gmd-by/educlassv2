@@ -19,4 +19,7 @@ router.beforeEach((to) => {
     if (to.meta.requiresAuth && !auth.isLoggedIn) {
         return '/login'
     }
+    if (to.path === '/login' && auth.isLoggedIn) {
+        return '/dashboard'
+    }
 })
