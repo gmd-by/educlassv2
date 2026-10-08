@@ -9,7 +9,7 @@ const columnWidths = computed(() => {
   const widths = {}
   columns.forEach((col) => {
     const longestValue = Math.max(
-        ...studentsStore.students.map((student) => String(student[col.key]).length)
+        ...studentRows.value.map((student) => String(student[col.key]).length)
     )
     const longest = Math.max(longestValue, col.label.length, 8)
     widths[col.key] = `calc(${longest}ch + 3rem)`
@@ -22,6 +22,18 @@ const sortDirection = ref('desc')
 const studentsStore = useStudentsStore()
 const { sectionTitle, selectedSectionId, sections } = storeToRefs(studentsStore)
 
+const studentRows = computed(() => {
+  return studentsStore.students.map((student) => {
+    const section = sections.value.find((s) => s.id === student.sectionId)
+    return {
+      ...student,
+      section: section
+        ? `${section.course} ${section.yearLevel} - ${section.name}`
+          : 'Unassigned',
+    }
+  })
+})
+
 const showColumnMenu = ref(false)
 const showSectionMenu = ref(false)
 
@@ -30,7 +42,7 @@ function pickSection(id) {
   showSectionMenu.value = false
 }
 
-const defaultKeys = ['id', 'name', 'email', 'academicYear', 'yearLevel', 'course']
+const defaultKeys = ['id', 'name', 'email', 'academicYear', 'yearLevel', 'course', 'section']
 const resetKeys = []
 const visibleKeys = ref([...defaultKeys])
 const visibleColumns = computed(() => {
@@ -44,17 +56,19 @@ const filters = reactive({
   academicYear: '',
   yearLevel: '',
   course: '',
+  section: '',
 })
 
 const filteredStudents = computed(() => {
   return sectionStudents.value.filter((student) => {
     return (
         String(student.id).includes(filters.id) &&
-            student.name.toLowerCase().includes(filters.name.toLowerCase()) &&
-            student.email.toLowerCase().includes(filters.email.toLowerCase()) &&
-            student.academicYear.toLowerCase().includes(filters.academicYear.toLowerCase()) &&
-            student.yearLevel.toLowerCase().includes(filters.yearLevel.toLowerCase()) &&
-            student.course.toLowerCase().includes(filters.course.toLowerCase())
+          student.name.toLowerCase().includes(filters.name.toLowerCase()) &&
+          student.email.toLowerCase().includes(filters.email.toLowerCase()) &&
+          student.academicYear.toLowerCase().includes(filters.academicYear.toLowerCase()) &&
+          student.yearLevel.toLowerCase().includes(filters.yearLevel.toLowerCase()) &&
+          student.course.toLowerCase().includes(filters.course.toLowerCase()) &&
+          student.section.toLowerCase().includes(filters.section.toLowerCase())
     )
   })
 })
@@ -109,8 +123,8 @@ function nextPage() {
 }
 
 const sectionStudents = computed(() => {
-  if (selectedSectionId.value === null) return studentsStore.students
-  return studentsStore.students.filter((student) => student.sectionId === selectedSectionId.value)
+  if (selectedSectionId.value === null) return studentRows.value
+  return studentRows.value.filter((student) => student.sectionId === selectedSectionId.value)
 })
 
 function toggleSort(column) {
@@ -137,6 +151,7 @@ const columns = [
   { key: 'academicYear', label: 'Academic Year (S.Y.)' },
   { key: 'yearLevel', label: 'Year Level' },
   { key: 'course', label: 'Course' },
+  { key: 'section', label: 'Section' }
 ]
 
 watch(visibleKeys, (keys) => {
@@ -175,20 +190,26 @@ onBeforeUnmount(() => {
 
 <template>
   <AppLayout page-name="Students">
-    <div class="p-6 flex flex-col flex-1 min-h-[28rem]">
-      <div class="bg-white rounded shadow flex-1 min-h-0 flex flex-col">
+    <div class="flex flex-col flex-1 min-h-[28rem] p-6">
+      <RouterLink to="/dashboard"
+                  class="inline-block pb-3 font-medium text-sm text-emerald hover:text-emerald-900">
+        ← Back to Dashboard
+      </RouterLink>
+      <div class="flex flex-col flex-1 min-h-0 bg-white rounded shadow">
 
         <!-- header START -->
-        <div class="relative shrink-0 rounded-t bg-emerald-600 border-emerald-700">
+        <div class="relative shrink-0 rounded-t bg-emerald-700">
           <div class="absolute inset-y-0 right-0 w-64 overflow-hidden rounded-tr pointer-events-none">
             <svg xmlns="http://www.w3.org/2000/svg"
                  viewBox="0 0 640 640"
                  fill="currentColor"
-                 class="absolute -right-1 -bottom-15 h-48 w-48 text-white opacity-70 pointer-events-none">
+                 class="absolute h-36 w-36 right-1 -bottom-10 text-white opacity-50 pointer-events-none">
               <path d="M80 259.8L289.2 345.9C299 349.9 309.4 352 320 352C330.6 352 341 349.9 350.8 345.9L593.2 246.1C602.2 242.4 608 233.7 608 224C608 214.3 602.2 205.6 593.2 201.9L350.8 102.1C341 98.1 330.6 96 320 96C309.4 96 299 98.1 289.2 102.1L46.8 201.9C37.8 205.6 32 214.3 32 224L32 520C32 533.3 42.7 544 56 544C69.3 544 80 533.3 80 520L80 259.8zM128 331.5L128 448C128 501 214 544 320 544C426 544 512 501 512 448L512 331.4L369.1 390.3C353.5 396.7 336.9 400 320 400C303.1 400 286.5 396.7 270.9 390.3L128 331.4"/>
             </svg>
           </div>
-          <h2 class="px-4 pt-4 font-medium text-lg text-white">STUDENT MANAGEMENT</h2>
+          <h2 class="px-4 pt-4 font-medium text-lg text-white">
+            Student Management
+          </h2>
 
         <!-- toolbar START -->
         <div class="flex flex-wrap items-center gap-4 px-4 py-4">
@@ -302,11 +323,19 @@ onBeforeUnmount(() => {
                 <td v-for="col in visibleColumns"
                     :key="col.key"
                     class="px-4 py-2 whitespace-nowrap">
-                  {{ student[col.key] }}
+                  <template v-if="col.key === 'name' && stackEmail">
+                    <div class="font-medium text-gray-800">{{ student.name }}</div>
+                    <div class="text-xs text-gray-500">{{ student.email }}</div>
+                  </template>
+                  <template v-else>{{ student[col.key] }}</template>
                 </td>
               </tr>
             </tbody>
           </table>
+          <p v-if="sortedStudents.length === 0"
+             class="px-4 py-10 text-center text-sm text-gray-500">
+            No results match your filters.
+          </p>
         </div>
         <!--table END -->
         <!-- footer START -->
