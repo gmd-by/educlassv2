@@ -1,8 +1,14 @@
 <script setup>
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '../stores/auth'
 
 const router = useRouter()
-    function handleSignIn() { router.replace('/dashboard') }
+const auth = useAuthStore()
+
+function handleSignIn() {
+  auth.login()
+  router.replace('/dashboard')
+}
 </script>
 
 <template>

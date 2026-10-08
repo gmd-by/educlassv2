@@ -130,7 +130,7 @@ const foundFields = [
         <div class="lg:col-span-2 flex flex-col gap-4">
 
           <!-- student search START -->
-          <div class="bg-white rounded shadow overflow-hidden">
+          <div class="bg-white rounded shadow overflow-hidden flex-1">
             <h2 class="bg-emerald-700 text-white font-medium text-sm px-4 py-2 border-b border-emerald-700">
               QUICK SEARCH
             </h2>
@@ -152,12 +152,12 @@ const foundFields = [
                    class="mt-4 pt-4 text-sm border-t border-gray-200">
                 <div class="bg-white rounded border-1 border-gray-200 overflow-hidden flex flex-col xl:flex-row">
                   <div class="flex-1 min-w-0 py-2 px-2">
-                    <table class="w-full">
-                      <tbody class="tex-sm">
+                    <table class="w-full table-fixed">
+                      <tbody class="text-sm">
                       <tr v-for="field in foundFields"
                           :key="field.key">
-                        <td class="py-2 px-4 font-medium">{{ field.label }}</td>
-                        <td class="py-2 px-4">{{ foundStudent[field.key ]}}</td>
+                        <td class="w-46 py-2 px-4 font-medium text-left">{{ field.label }}</td>
+                        <td class="py-2 px-4 text-left break-words">{{ foundStudent[field.key] }}</td>
                       </tr>
                       </tbody>
                     </table>
@@ -170,6 +170,7 @@ const foundFields = [
                 </div>
               </div>
               <!-- found student END -->
+
               <p v-if="notFound"
                  class="mt-4 text-sm text-red-600">
                 No student was found with that Student ID in our database. Try a different ID.
@@ -185,7 +186,7 @@ const foundFields = [
             <div class="relative overflow-hidden bg-white rounded shadow p-4 h-24">
               <p class="text-2xl font-semibold text-gray-800">{{ totalStudents }}</p>
               <p class="text-sm text-gray-500 font-medium">TOTAL STUDENTS</p>
-              <svg xmlns="https://w3.org/2000/svg"
+              <svg xmlns="http://www.w3.org/2000/svg"
                    viewBox="0 0 640 640"
                    fill="currentColor"
                    class="absolute -right-1 -bottom-9 h-32 w-32 text-emerald-600 opacity-20 pointer-events-none">
@@ -198,7 +199,7 @@ const foundFields = [
             <div class="relative overflow-hidden bg-white rounded shadow p-4 h-24">
               <p class="text-2xl font-semibold text-gray-800">{{ totalSections }}</p>
               <p class="text-sm text-gray-500 font-medium">SECTIONS</p>
-              <svg xmlns="https://w3.org/2000/svg"
+              <svg xmlns="http://www.w3.org/2000/svg"
                    viewBox="0 0 640 640"
                    fill="currentColor"
                    class="absolute -right-1 -bottom-9 h-32 w-32 text-emerald-600 opacity-20 pointer-events-none">
@@ -282,6 +283,7 @@ const foundFields = [
         <!-- left column END -->
 
         <!-- news column START -->
+        <!-- news column START -->
         <div class="bg-white rounded shadow overflow-hidden flex flex-col">
           <h2 class="bg-emerald-700 text-white font-medium text-sm px-4 py-2 border-b border-emerald-700">
             ANNOUNCEMENTS
@@ -329,7 +331,7 @@ const foundFields = [
               <button type="button"
                       :disabled="postPage === totalPostPages"
                       @click="nextPostPage"
-                      class="border border-gray-300 rounded bg-white px-3 py-1 hover:bg-gray-50 disabled:cursor-not-allowed disabled:hover:bg-white">
+                      class="border border-gray-300 rounded bg-white px-3 py-1 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white">
                 Older
               </button>
             </div>

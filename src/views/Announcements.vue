@@ -11,14 +11,13 @@ const posts = computed(() => announcementsStore.posts)
 <AppLayout page-name="Announcements">
   <div class="w-full px-[25px] py-2">
     <RouterLink to="/dashboard"
-                class="inline-block mt-4 pb-2 text-sm font-medium text-emerald-600 hover:text-emerald-900">
+                class="inline-block mt-4 pb-3 text-sm font-medium text-emerald-600 hover:text-emerald-900">
       ← Back to Dashboard
     </RouterLink>
     <div class="bg-white rounded shadow overflow-hidden">
       <h2 class="bg-emerald-700 text-white font-medium text-sm px-4 py-2 border-b border-emerald-700">
         ANNOUNCEMENTS
       </h2>
-
       <div class="p-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
         <article v-for="post in posts"
                  :key="post.id"

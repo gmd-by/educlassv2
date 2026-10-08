@@ -181,7 +181,7 @@ onBeforeUnmount(() => {
         <!-- header START -->
         <div class="relative shrink-0 rounded-t bg-emerald-600 border-emerald-700">
           <div class="absolute inset-y-0 right-0 w-64 overflow-hidden rounded-tr pointer-events-none">
-            <svg xmlns="https://w3.org/2000/svg"
+            <svg xmlns="http://www.w3.org/2000/svg"
                  viewBox="0 0 640 640"
                  fill="currentColor"
                  class="absolute -right-1 -bottom-15 h-48 w-48 text-white opacity-70 pointer-events-none">
