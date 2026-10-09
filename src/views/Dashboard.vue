@@ -283,7 +283,6 @@ const foundFields = [
         <!-- left column END -->
 
         <!-- news column START -->
-        <!-- news column START -->
         <div class="bg-white rounded shadow overflow-hidden flex flex-col">
           <h2 class="bg-emerald-700 text-white font-medium text-sm px-4 py-2 border-b border-emerald-700">
             ANNOUNCEMENTS

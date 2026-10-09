@@ -1,5 +1,6 @@
 <script setup>
 import AppLayout from '../components/AppLayout.vue'
+import StudentModal from '../components/StudentModal.vue'
 import { ref, reactive, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useStudentsStore } from '../stores/students'
 import { Search, GraduationCap, ArrowUp, ArrowDown, ArrowUpDown, ChevronDown } from 'lucide-vue-next'
@@ -36,6 +37,11 @@ const studentRows = computed(() => {
 
 const showColumnMenu = ref(false)
 const showSectionMenu = ref(false)
+const showAddModal = ref(false)
+
+function handleSaved() {
+  showAddModal.value = false
+}
 
 function pickSection(id) {
   selectedSectionId.value = id
@@ -190,9 +196,9 @@ onBeforeUnmount(() => {
 
 <template>
   <AppLayout page-name="Students">
-    <div class="flex flex-col flex-1 min-h-[28rem] p-6">
+    <div class="flex flex-col flex-1 min-h-[28rem] px-[25px] py-2 mb-4">
       <RouterLink to="/dashboard"
-                  class="inline-block pb-3 font-medium text-sm text-emerald hover:text-emerald-900">
+                  class="self-start mt-4 pb-3 text-sm font-medium text-emerald-700 hover:text-emerald-900">
         ← Back to Dashboard
       </RouterLink>
       <div class="flex flex-col flex-1 min-h-0 bg-white rounded shadow">
@@ -212,7 +218,7 @@ onBeforeUnmount(() => {
           </h2>
 
         <!-- toolbar START -->
-        <div class="flex flex-wrap items-center gap-4 px-4 py-4">
+        <div class="relative flex flex-wrap items-center gap-4 px-4 py-4">
 
           <!-- class/section toggle START -->
           <div ref="sectionMenuRef"
@@ -226,13 +232,15 @@ onBeforeUnmount(() => {
                              :class="showSectionMenu ? 'rotate-180' : ''"/>
               </button>
               <div v-if="showSectionMenu"
-                   class="absolute w-72 max-w-[85vw] flex flex-col items-start gap-1 absolute top-full left-0 right-0 z-20 rounded bg-white border border-gray-300 pl-3 pr-3 py-2">
+                   class="absolute w-72 max-w-[85vw] flex flex-col top-full left-0 right-0 z-20 rounded bg-white border border-gray-300 py-1">
                 <button type="button"
-                        class="mb-2"
-                        @click="pickSection(null)"> All Students </button>
+                        class="w-full text-left px-3 py-2 hover:bg-emerald-100"
+                        @click="pickSection(null)">
+                  All Students
+                </button>
                 <button v-for="section in sections"
-                        class="mb-2 hover:bg-emerald-100"
                         :key="section.id"
+                        class="w-full text-left px-3 py-2 hover:bg-emerald-100"
                         @click="pickSection(section.id)">
                   {{ section.course }} {{ section.yearLevel }} - {{ section.name }}
                 </button>
@@ -252,7 +260,7 @@ onBeforeUnmount(() => {
                            :class="showColumnMenu ? 'rotate-180' : ''"/>
             </button>
             <div v-if="showColumnMenu"
-                 class="absolute max-w-[85vw] w-full flex flex-col gap-1 z-20 pl-4 pr-4 py-4 bg-white border border-gray-300">
+                 class="absolute max-w-[85vw] w-full flex flex-col gap-1 z-20 pl-4 pr-4 py-4 rounded bg-white border border-gray-300">
               <p class="text-sm">Select which columns to display:</p>
               <div class="flex gap-2 font-medium text-sm">
                 <button type="button"
@@ -277,6 +285,11 @@ onBeforeUnmount(() => {
             </div>
           </div>
           <!-- columns END -->
+          <button type="button"
+                  class="w-full sm:w-auto rounded border border-amber-400 bg-amber-400 text-amber-900 text-sm font-medium px-4 py-1 hover:bg-amber-500 hover:border-amber-500 hover:text-amber-900"
+                  @click="showAddModal = true">
+            Add a Student
+          </button>
         </div>
         <!-- toolbar END -->
           </div>
@@ -323,11 +336,7 @@ onBeforeUnmount(() => {
                 <td v-for="col in visibleColumns"
                     :key="col.key"
                     class="px-4 py-2 whitespace-nowrap">
-                  <template v-if="col.key === 'name' && stackEmail">
-                    <div class="font-medium text-gray-800">{{ student.name }}</div>
-                    <div class="text-xs text-gray-500">{{ student.email }}</div>
-                  </template>
-                  <template v-else>{{ student[col.key] }}</template>
+                  {{ student[col.key] }}
                 </td>
               </tr>
             </tbody>
@@ -369,5 +378,8 @@ onBeforeUnmount(() => {
         <!-- footer END-->
       </div>
     </div>
+    <StudentModal v-if="showAddModal"
+                  @close="showAddModal = false"
+                  @saved="handleSaved"/>
   </AppLayout>
 </template>

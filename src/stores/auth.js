@@ -7,7 +7,7 @@ export const useAuthStore = defineStore('auth', () => {
     function login(email, password) {
         if (email === 'admin@educlass.test' && password === 'admin123') {
             isLoggedIn.value = true
-            localStorage.setItem('isLoggednIn', 'true')
+            localStorage.setItem('isLoggedIn', 'true')
             return true
         }
         return false
