@@ -12,37 +12,49 @@ const error = ref('')
 function handleSignIn() {
   if (auth.login(email.value.trim(), password.value)) {
     router.replace('/dashboard')
-  } else {
-    error.value = 'Invalid email or password.'
+    return
   }
+  error.value = 'Invalid email or password.'
 }
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col bg-gray-100">
-    <header class="sticky top-0 z-10 bg-white shadow px-6 py-4">
-      <span class="text-xl font-bold text-gray-800">EduClass</span>
+  <div class="flex flex-col min-h-screen bg-gray-100">
+    <!-- header START -->
+    <header class="flex items-center h-[62px] px-6 bg-emerald-700 shadow">
+      <img src="/edulogo.png" alt="EduClass" class="h-7">
     </header>
+    <!-- header END -->
 
-    <main class="flex-1 flex items-center justify-center">
-      <div class="w-full max-w-sm bg-white rounded-xl shadow-md p-8">
-        <h1 class="text-2xl font-bold text-gray-800 text-center mb-6">Sign in</h1>
+    <main class="flex flex-1 items-center justify-center">
+      <form class="w-full max-w-sm p-8 bg-white rounded shadow"
+            @submit.prevent="handleSignIn">
+        <h1 class="mb-6 text-2xl font-bold text-center text-gray-800">Sign in</h1>
 
-        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-        <input v-model="email"
+        <label for="email" class="block mb-1 text-sm font-medium text-gray-700">Email</label>
+        <input id="email"
+               v-model="email"
                type="text"
-               class="w-full border border-gray-300 rounded-lg px-3 py-2 mb-4 foxus:outline-none focus:ring-2 focus:ring-emerald-500"/>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-        <input v-model="password"
+               class="w-full px-3 py-2 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-emerald-700">
+
+        <label for="password" class="block mb-1 text-sm font-medium text-gray-700">Password</label>
+        <input id="password"
+               v-model="password"
                type="password"
-               class="w-full border border-gray-300 rounded-lg px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-emerald-500"/>
-        <label class="block text-xs font-medium text-gray-500 hover:text-emerald-500 mb-4 mt-2">Forgot password?</label>
-        <p v-if="error" class="text-sm text-red-600 mb-4">{{ error }}</p>
-        <button @click="handleSignIn"
-                class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-medium rounded-lg py-2">
+               class="w-full px-3 py-2 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-emerald-700">
+
+        <button type="button"
+                class="block mt-2 mb-4 text-xs font-medium text-gray-500 hover:text-emerald-700">
+          Forgot password?
+        </button>
+
+        <p v-if="error" class="mb-4 text-sm text-red-600">{{ error }}</p>
+
+        <button type="submit"
+                class="w-full py-2 font-medium text-white bg-emerald-700 rounded hover:bg-emerald-900">
           Sign In
         </button>
-      </div>
+      </form>
     </main>
   </div>
 </template>

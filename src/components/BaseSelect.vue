@@ -11,25 +11,38 @@ const props = defineProps({
 })
 const emit = defineEmits(['update:modelValue'])
 
-const MENU_HEIGHT = 240
-const open = ref(false)
+const MENU_MAX_HEIGHT = 224
 const root = ref(null)
 const panel = ref(null)
+const open = ref(false)
+const opensUp = ref(false)
 const panelStyle = ref({})
 const activeIndex = ref(-1)
 
 const selected = computed(() => props.options.find((option) => option.value === props.modelValue))
+const joinedRadius = computed(() => {
+  if (!open.value) return ''
+  return opensUp.value ? 'rounded-t-none' : 'rounded-b-none'
+})
 
 function place() {
   const rect = root.value.getBoundingClientRect()
   const below = window.innerHeight - rect.bottom
-  const style = { left: `${rect.left}px`, width: `${rect.width}px` }
-  if (below < MENU_HEIGHT && rect.top > below) {
-    style.bottom = `${window.innerHeight - rect.top + 4}px`
-  } else {
-    style.top = `${rect.bottom + 4}px`
+  opensUp.value = below < MENU_MAX_HEIGHT && rect.top > below
+  panelStyle.value = {
+    left: `${rect.left}px`,
+    width: `${rect.width}px`,
+    ...(opensUp.value
+        ? { bottom: `${window.innerHeight - rect.top - 1}px` }
+        : { top: `${rect.bottom - 1}px` }),
   }
-  panelStyle.value = style
+}
+
+function setListeners(active) {
+  const method = active ? 'addEventListener' : 'removeEventListener'
+  document[method]('click', onOutsideClick)
+  window[method]('scroll', onScroll, true)
+  window[method]('resize', closeMenu)
 }
 
 function onOutsideClick(event) {
@@ -37,24 +50,19 @@ function onOutsideClick(event) {
 }
 
 function onScroll(event) {
-  if (panel.value && panel.value.contains(event.target)) return
-  closeMenu()
+  if (!panel.value?.contains(event.target)) closeMenu()
 }
 
 function openMenu() {
   place()
   activeIndex.value = props.options.findIndex((option) => option.value === props.modelValue)
   open.value = true
-  document.addEventListener('click', onOutsideClick)
-  window.addEventListener('scroll', onScroll, true)
-  window.addEventListener('resize', closeMenu)
+  setListeners(true)
 }
 
 function closeMenu() {
   open.value = false
-  document.removeEventListener('click', onOutsideClick)
-  window.removeEventListener('scroll', onScroll, true)
-  window.removeEventListener('resize', closeMenu)
+  setListeners(false)
 }
 
 function toggle() {
@@ -93,10 +101,11 @@ onBeforeUnmount(closeMenu)
 <template>
   <div ref="root" class="relative">
     <button type="button"
-            class="flex w-full items-center justify-between gap-2 rounded border bg-white text-left"
+            class="flex items-center justify-between w-full gap-2 px-3 text-left bg-white border rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700"
             :class="[
+              size === 'sm' ? 'py-1' : 'py-2',
               invalid ? 'border-red-500' : 'border-gray-300',
-              size === 'sm' ? 'px-3 py-1' : 'px-3 py-2',
+              joinedRadius,
             ]"
             aria-haspopup="listbox"
             :aria-expanded="open"
@@ -112,17 +121,18 @@ onBeforeUnmount(closeMenu)
     <ul v-if="open"
         ref="panel"
         role="listbox"
-        class="fixed z-50 max-h-56 overflow-auto rounded border border-gray-300 bg-white py-1 text-sm"
+        class="fixed z-50 max-h-56 overflow-auto py-1 text-sm bg-white border border-gray-300"
+        :class="opensUp ? 'rounded-t' : 'rounded-b'"
         :style="panelStyle">
       <li v-for="(option, index) in options"
           :key="option.value"
           role="option"
-          :aria-selected="option.value === modelValue"
-          class="cursor-pointer px-3 py-2"
+          class="px-3 py-2 cursor-pointer"
           :class="[
             index === activeIndex ? 'bg-emerald-100' : '',
             option.value === modelValue ? 'font-medium' : '',
           ]"
+          :aria-selected="option.value === modelValue"
           @mouseenter="activeIndex = index"
           @click="choose(option)">
         {{ option.label }}

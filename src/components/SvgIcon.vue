@@ -6,22 +6,13 @@ const props = defineProps({
 })
 
 const maskStyle = computed(() => {
-  const url = `url(/${props.name}.svg)`
-  return {
-    maskImage: url,
-    maskRepeat: 'no-repeat',
-    maskPosition: 'center',
-    maskSize: 'contain',
-    WebkitMaskImage: url,
-    WebkitMaskRepeat: 'no-repeat',
-    WebkitMaskPosition: 'center',
-    WebkitMaskSize: 'contain',
-  }
+  const mask = `url(/${props.name}.svg) center / contain no-repeat`
+  return { mask, WebkitMask: mask }
 })
 </script>
 
 <template>
-  <span aria-hidden="true"
-        class="inline-block shrink-0 bg-current"
-        :style="maskStyle"/>
+  <span class="inline-block shrink-0 bg-current"
+        :style="maskStyle"
+        aria-hidden="true"/>
 </template>

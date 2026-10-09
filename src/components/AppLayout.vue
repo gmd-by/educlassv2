@@ -1,14 +1,17 @@
 <script setup>
 import { useRouter } from 'vue-router'
-import { useAuthStore } from "../stores/auth.js";
+import { useAuthStore } from '../stores/auth'
 import SvgIcon from './SvgIcon.vue'
 
-defineProps( {
-  pageName: {
-    type: String,
-    required: true,
-  },
+defineProps({
+  pageName: { type: String, required: true },
 })
+
+const navLinks = [
+  { to: '/dashboard', label: 'Dashboard', icon: 'dashboardlogo' },
+  { to: '/students', label: 'Students', icon: 'studentlogo' },
+  { to: '/announcements', label: 'Announcements', icon: 'announcementlogo' },
+]
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -20,53 +23,39 @@ function handleSignOut() {
 </script>
 
 <template>
-  <div class="h-screen flex">
-    <!-- SIDEBAR -->
-    <aside
-        id="sidebar"
-        class="w-56 bg-emerald-700 text-white font-medium flex flex-col justify-between gap-4 p-4 overflow-y-auto">
+  <div class="flex h-screen">
+    <!-- sidebar START -->
+    <aside class="flex flex-col justify-between overflow-y-auto w-56 gap-4 p-4 font-medium text-white bg-emerald-700">
       <nav class="space-y-2">
-        <RouterLink to="/dashboard" class="flex items-center ps-2.5 mb-5">
-          <img src="/edulogo.png"
-               class="h-7 me-3"
-               alt="logo"/>
-          <span class="self-center text-lg text-heading font-semibold whitespace-nowrap"/>
+        <RouterLink to="/dashboard" class="flex items-center mb-5 ps-2.5">
+          <img src="/edulogo.png" alt="EduClass" class="h-7">
         </RouterLink>
         <hr class="border-emerald-100 opacity-25">
-        <RouterLink to="/dashboard" class="flex items-center gap-3 rounded px-3 py-2 hover:bg-gray-800">
-          <SvgIcon name="dashboardlogo" class="h-5 w-5"/>
-          Dashboard
-        </RouterLink>
-        <RouterLink to="/students" class="flex items-center gap-3 rounded px-3 py-2 hover:bg-gray-800">
-          <SvgIcon name="studentlogo" class="h-5 w-5"/>
-          Students
-        </RouterLink>
-        <RouterLink to="/announcements" class="flex items-center gap-3 rounded px-3 py-2 hover:bg-gray-800">
-          <SvgIcon name="announcementlogo" class="h-5 w-5"/>
-          Announcements
+        <RouterLink v-for="link in navLinks"
+                    :key="link.to"
+                    :to="link.to"
+                    class="flex items-center gap-3 px-3 py-2 rounded hover:bg-emerald-900 transition-colors duration-200">
+          <SvgIcon :name="link.icon" class="h-5 w-5"/>
+          {{ link.label }}
         </RouterLink>
       </nav>
-      <button
-          @click="handleSignOut()"
-          class="flex w-full items-center gap-3 rounded px-3 py-2 text-left hover:bg-gray-800">
+      <button type="button"
+              class="flex items-center w-full gap-3 px-3 py-2 text-left rounded hover:bg-emerald-900 transition-colors duration-200"
+              @click="handleSignOut">
         <SvgIcon name="signoutlogo" class="h-5 w-5"/>
         Sign out
       </button>
     </aside>
-      <!-- SIDEBAR END -->
+    <!-- sidebar END -->
 
-    <!-- header START -->
-    <main class="flex-1 flex-col overflow-y-auto bg-gray-100">
-      <div class="sticky top-0 shrink-0 z-10 bg-white shadow px-6 h-[62px] flex items-center">
+    <main class="flex-1 overflow-y-auto bg-gray-100">
+      <!-- header START -->
+      <div class="sticky top-0 z-10 flex items-center h-[62px] px-6 bg-white shadow">
         <span class="font-semibold text-gray-700">{{ pageName }}</span>
       </div>
-    <!-- header END -->
+      <!-- header END -->
 
-      <slot />
+      <slot/>
     </main>
   </div>
 </template>
-
-<style scoped>
-
-</style>
