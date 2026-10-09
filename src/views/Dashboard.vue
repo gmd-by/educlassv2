@@ -163,7 +163,12 @@ const foundFields = [
                     </table>
                   </div>
                   <div class="shrink-0 flex items-center justify-center p-4 border-t border-gray-200 xl:border-t-0 xl:border-l xl:w-[40%]">
-                    <div class="h-42 w-42 rounded bg-gray-100 border border-gray-200 flex items-center justify-center text-xs text-gray-400">
+                    <img v-if="foundStudent.photo"
+                         :src="foundStudent.photo"
+                         alt=""
+                         class="h-42 w-42 rounded object-cover">
+                    <div v-else
+                         class="h-42 w-42 rounded bg-gray-100 border border-gray-200 flex items-center justify-center text-xs text-gray-400">
                       No photo
                     </div>
                   </div>

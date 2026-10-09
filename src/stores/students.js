@@ -52,7 +52,11 @@ export const useStudentsStore = defineStore('students', () => {
     }
     const students = ref(loadStudents())
     watch(students, (value) => {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(value))
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(value))
+        } catch {
+            console.warn('Could not save students: browser storage is full.')
+        }
     }, { deep: true })
 
     const selectedSectionId = ref(null)
@@ -69,5 +73,16 @@ export const useStudentsStore = defineStore('students', () => {
         return true
     }
 
-    return { sections, students, selectedSectionId, sectionTitle, addStudent}
+    function removeStudent(id) {
+        students.value = students.value.filter((s) => s.id !== id)
+    }
+
+    function updateStudent(id, changes) {
+        const index = students.value.findIndex((s) => s.id === id)
+        if (index === -1) return false
+        students.value[index] = { ...students.value[index], ...changes, id }
+        return true
+    }
+
+    return { sections, students, selectedSectionId, sectionTitle, addStudent, removeStudent, updateStudent }
 })

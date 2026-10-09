@@ -1,6 +1,7 @@
 <script setup>
 import AppLayout from '../components/AppLayout.vue'
 import StudentModal from '../components/StudentModal.vue'
+import ConfirmModal from '../components/ConfirmModal.vue'
 import { ref, reactive, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useStudentsStore } from '../stores/students'
 import { Search, GraduationCap, ArrowUp, ArrowDown, ArrowUpDown, ChevronDown } from 'lucide-vue-next'
@@ -37,10 +38,31 @@ const studentRows = computed(() => {
 
 const showColumnMenu = ref(false)
 const showSectionMenu = ref(false)
+
 const showAddModal = ref(false)
+const editingStudent = ref(null)
+const removingStudent = ref(null)
+
+function closeForm() {
+  showAddModal.value = false
+  editingStudent.value = null
+}
+
+function confirmRemove() {
+  studentsStore.removeStudent(removingStudent.value.id)
+  removingStudent.value = null
+  editingStudent.value = null
+  if (currentPage.value > totalPages.value) currentPage.value = totalPages.value
+}
 
 function handleSaved() {
   showAddModal.value = false
+}
+
+function handleRemove(student) {
+  if (!confirm(`Remove ${student.name} (${student.id})?`)) return
+  studentsStore.removeStudent(student.id)
+  if (currentPage.value > totalPages.value) currentPage.value = totalPages.value
 }
 
 function pickSection(id) {
@@ -298,26 +320,31 @@ onBeforeUnmount(() => {
         <div class="overflow-auto flex-1 min-h-0">
           <table class="min-w-max w-full text-sm text-left">
             <thead class="sticky top-0 z-10 bg-gray-100 text-gray-700">
-              <tr>
-                <th v-for="col in visibleColumns"
-                    :key="col.key"
-                    :style="{ width: columnWidths[col.key] }"
-                    class="px-4 py-2 whitespace-nowrap">
-                  <button type="button"
-                          class="flex items-center gap-1 hover:text-gray-900"
-                          @click="toggleSort(col.key)">
-                    {{ col.label }}
-                    <ArrowUp v-if="sortColumn === col.key && sortDirection === 'asc'"
-                             class="w-3 h-3 text-gray-900"/>
-                    <ArrowDown v-else-if="sortColumn === col.key" class="w-3 h-3"
-                               :class="sortColumn === col.key ? 'text-gray-900' : 'text-gray-400'"/>
-                    <ArrowUpDown v-else class="w-3 h-3 text-gray-400"/>
-                  </button>
-                </th>
-              </tr>
             <tr>
               <th v-for="col in visibleColumns"
                   :key="col.key"
+                  :style="{ width: columnWidths[col.key] }"
+                  :class="col.key === 'id' ? 'sticky left-0 z-10 bg-gray-100 shadow-[inset_-1px_0_0_#e5e7eb]' : ''"
+                  class="px-4 py-2 whitespace-nowrap">
+                <button type="button"
+                        class="flex items-center gap-1 hover:text-gray-900"
+                        @click="toggleSort(col.key)">
+                  {{ col.label }}
+                  <ArrowUp v-if="sortColumn === col.key && sortDirection === 'asc'"
+                           class="w-3 h-3 text-gray-900"/>
+                  <ArrowDown v-else-if="sortColumn === col.key" class="w-3 h-3"
+                             :class="sortColumn === col.key ? 'text-gray-900' : 'text-gray-400'"/>
+                  <ArrowUpDown v-else class="w-3 h-3 text-gray-400"/>
+                </button>
+              </th>
+              <th class="sticky right-0 z-10 w-14 bg-gray-100 px-2 py-2 text-center whitespace-nowrap shadow-[inset_1px_0_0_#e5e7eb]">
+                Edit
+              </th>
+            </tr>
+            <tr>
+              <th v-for="col in visibleColumns"
+                  :key="col.key"
+                  :class="col.key === 'id' ? 'sticky left-0 z-10 bg-gray-100 shadow-[inset_-1px_0_0_#e5e7eb]' : ''"
                   class="px-4 pb-2">
                 <div class="relative">
                   <input v-model="filters[col.key]"
@@ -328,17 +355,27 @@ onBeforeUnmount(() => {
                   </button>
                 </div>
               </th>
+              <th class="sticky right-0 z-10 w-14 bg-gray-100 px-2 pb-2 shadow-[inset_1px_0_0_#e5e7eb]"></th>
             </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
-              <tr v-for="student in pagedStudents"
-                  :key="student.id">
-                <td v-for="col in visibleColumns"
-                    :key="col.key"
-                    class="px-4 py-2 whitespace-nowrap">
-                  {{ student[col.key] }}
-                </td>
-              </tr>
+            <tr v-for="student in pagedStudents"
+                :key="student.id">
+              <td v-for="col in visibleColumns"
+                  :key="col.key"
+                  :class="col.key === 'id' ? 'sticky left-0 z-[1] bg-white shadow-[inset_-1px_0_0_#e5e7eb]' : ''"
+                  class="px-4 py-2 whitespace-nowrap">
+                {{ student[col.key] }}
+              </td>
+              <td class="sticky right-0 z-[1] w-14 bg-white px-2 py-2 text-center shadow-[inset_1px_0_0_#e5e7eb]">
+                <button type="button"
+                        :aria-label="`Manage ${student.name}`"
+                        class="rounded p-1 opacity-60 hover:opacity-100 hover:bg-gray-100"
+                        @click="editingStudent = student">
+                  <img src="/editlogo.svg" alt="" class="h-4 w-4">
+                </button>
+              </td>
+            </tr>
             </tbody>
           </table>
           <p v-if="sortedStudents.length === 0"
@@ -378,8 +415,16 @@ onBeforeUnmount(() => {
         <!-- footer END-->
       </div>
     </div>
-    <StudentModal v-if="showAddModal"
-                  @close="showAddModal = false"
-                  @saved="handleSaved"/>
+    <StudentModal v-if="showAddModal || editingStudent"
+                  :student="editingStudent"
+                  @close="closeForm"
+                  @saved="closeForm"
+                  @remove="removingStudent = editingStudent"/>
+    <ConfirmModal v-if="removingStudent"
+                  title="Remove student"
+                  :message="`Remove ${removingStudent.name} (${removingStudent.id})? This can't be undone.`"
+                  confirm-label="Remove"
+                  @confirm="confirmRemove"
+                  @close="removingStudent = null"/>
   </AppLayout>
 </template>
