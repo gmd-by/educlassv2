@@ -282,10 +282,13 @@ onBeforeUnmount(() => {
           </button>
         </div>
         <!-- toolbar END -->
+
           </div>
         <!-- header END -->
+
         <!-- table START -->
         <div class="overflow-auto flex-1 min-h-0">
+          <template v-if="visibleColumns.length > 0">
           <table class="min-w-max w-full text-sm text-left">
             <thead class="sticky top-0 z-10 bg-gray-100 text-gray-700">
             <tr>
@@ -354,8 +357,14 @@ onBeforeUnmount(() => {
              class="px-4 py-10 text-center text-sm text-gray-500">
             No results match your filters.
           </p>
+          </template>
+          <div v-else
+               class="flex min-h-64 items-center justify-center px-4 py-10 text-center text-sm text-gray-500">
+            Nothing to see here. Select one or more columns to return display.
+          </div>
         </div>
         <!--table END -->
+
         <!-- footer START -->
         <div class="flex flex-wrap items-center justify-between gap-3 shrink-0 px-4 py-3 text-sm text-gray-600 border-t border-gray-200">
           <span>Showing {{ rangeStart }}-{{ rangeEnd }} of {{ sortedStudents.length }}</span>
@@ -378,6 +387,7 @@ onBeforeUnmount(() => {
           </div>
         </div>
         <!-- footer END-->
+
       </div>
     </div>
     <StudentModal v-if="showAddModal || editingStudent"

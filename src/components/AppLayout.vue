@@ -34,6 +34,7 @@ function handleSignOut() {
         <RouterLink v-for="link in navLinks"
                     :key="link.to"
                     :to="link.to"
+                    active-class="bg-emerald-900"
                     class="flex items-center gap-3 px-3 py-2 rounded hover:bg-emerald-900 transition-colors duration-200">
           <SvgIcon :name="link.icon" class="h-5 w-5"/>
           {{ link.label }}
