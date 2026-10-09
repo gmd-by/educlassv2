@@ -1,4 +1,5 @@
 <script setup>
+import BaseSelect from './BaseSelect.vue'
 import { reactive, ref, computed, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useStudentsStore } from '../stores/students'
@@ -65,6 +66,14 @@ const EMAIL_DOMAIN = '@school.edu'
 const academicYears = ['2026-2027', '2025-2026', '2024-2025', '2023-2024']
 const yearLabels = ['1st Year', '2nd Year', '3rd Year', '4th Year']
 const courseNames = computed(() => [...new Set(sections.value.map((s) => s.courseName))])
+
+const academicYearOptions = academicYears.map((year) => ({ value: year, label: year }))
+const yearOptions = yearLabels.map((level) => ({ value: level, label: level }))
+const courseOptions = computed(() => courseNames.value.map((name) => ({ value: name, label: name })))
+const sectionOptions = computed(() => sections.value.map((section) => ({
+  value: section.id,
+  label: `${section.course} ${section.yearLevel} - ${section.name}`,
+})))
 
 const form = reactive({
   id: props.student ? props.student.id : '',
@@ -213,46 +222,27 @@ function handleSubmit() {
             <tr>
               <td class="py-3 pr-3 align-top font-medium">ACADEMIC YEAR</td>
               <td class="py-1.5">
-                <select v-model="form.academicYear"
-                        class="w-full border border-gray-300 rounded bg-white px-3 py-2">
-                  <option v-for="year in academicYears"
-                          :key="year"
-                          :value="year">
-                    {{ year }}
-                  </option>
-                </select>
+                <BaseSelect v-model="form.academicYear" :options="academicYearOptions"/>
               </td>
             </tr>
             <tr>
               <td class="py-3 pr-3 align-top font-medium">SECTION</td>
               <td class="py-1.5">
-                <select v-model="form.sectionId"
-                        class="w-full border rounded bg-white px-3 py-2"
-                        :class="errors.sectionId ? 'border-red-500' : 'border-gray-300'">
-                  <option :value="null" disabled>Choose a section</option>
-                  <option v-for="section in sections"
-                          :key="section.id"
-                          :value="section.id">
-                    {{ section.course }} {{ section.yearLevel }} - {{ section.name }}
-                  </option>
-                </select>
+                <BaseSelect v-model="form.sectionId"
+                            :options="sectionOptions"
+                            placeholder="Choose a section"
+                            :invalid="!!errors.sectionId"/>
                 <p v-if="errors.sectionId" class="text-xs text-red-600 mt-1">{{ errors.sectionId }}</p>
               </td>
             </tr>
             <tr>
               <td class="py-3 pr-3 align-top font-medium">COURSE</td>
               <td class="py-1.5">
-                <select v-if="irregular"
-                        v-model="form.course"
-                        class="w-full border rounded bg-white px-3 py-2"
-                        :class="errors.course ? 'border-red-500' : 'border-gray-300'">
-                  <option value="" disabled>Choose a course</option>
-                  <option v-for="name in courseNames"
-                          :key="name"
-                          :value="name">
-                    {{ name }}
-                  </option>
-                </select>
+                <BaseSelect v-if="irregular"
+                            v-model="form.course"
+                            :options="courseOptions"
+                            placeholder="Choose a course"
+                            :invalid="!!errors.course"/>
                 <div v-else
                      class="w-full border border-gray-200 rounded bg-gray-100 px-3 py-2 text-gray-600">
                   {{ course || '—' }}
@@ -263,17 +253,11 @@ function handleSubmit() {
             <tr>
               <td class="py-3 pr-3 align-top font-medium">YEAR LEVEL</td>
               <td class="py-1.5">
-                <select v-if="irregular"
-                        v-model="form.yearLevel"
-                        class="w-full border rounded bg-white px-3 py-2"
-                        :class="errors.yearLevel ? 'border-red-500' : 'border-gray-300'">
-                  <option value="" disabled>Choose a year level</option>
-                  <option v-for="level in yearLabels"
-                          :key="level"
-                          :value="level">
-                    {{ level }}
-                  </option>
-                </select>
+                <BaseSelect v-if="irregular"
+                            v-model="form.yearLevel"
+                            :options="yearOptions"
+                            placeholder="Choose a year level"
+                            :invalid="!!errors.yearLevel"/>
                 <div v-else
                      class="w-full border border-gray-200 rounded bg-gray-100 px-3 py-2 text-gray-600">
                   {{ yearLevel || '—' }}

@@ -2,9 +2,10 @@
 import AppLayout from '../components/AppLayout.vue'
 import StudentModal from '../components/StudentModal.vue'
 import ConfirmModal from '../components/ConfirmModal.vue'
+import SvgIcon from '../components/SvgIcon.vue'
+import BaseSelect from '../components/BaseSelect.vue'
 import { ref, reactive, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useStudentsStore } from '../stores/students'
-import { Search, GraduationCap, ArrowUp, ArrowDown, ArrowUpDown, ChevronDown } from 'lucide-vue-next'
 import { storeToRefs } from 'pinia'
 
 const columnWidths = computed(() => {
@@ -22,7 +23,7 @@ const columnWidths = computed(() => {
 const sortColumn = ref(null)
 const sortDirection = ref('desc')
 const studentsStore = useStudentsStore()
-const { sectionTitle, selectedSectionId, sections } = storeToRefs(studentsStore)
+const { selectedSectionId, sections } = storeToRefs(studentsStore)
 
 const studentRows = computed(() => {
   return studentsStore.students.map((student) => {
@@ -30,15 +31,21 @@ const studentRows = computed(() => {
     return {
       ...student,
       section: section
-        ? `${section.course} ${section.yearLevel} - ${section.name}`
+          ? `${section.course} ${section.yearLevel} - ${section.name}`
           : 'Unassigned',
     }
   })
 })
 
-const showColumnMenu = ref(false)
-const showSectionMenu = ref(false)
+const sectionChoices = computed(() => [
+  { value: null, label: 'All Students' },
+  ...sections.value.map((section) => ({
+    value: section.id,
+    label: `${section.course} ${section.yearLevel} - ${section.name}`,
+  })),
+])
 
+const showColumnMenu = ref(false)
 const showAddModal = ref(false)
 const editingStudent = ref(null)
 const removingStudent = ref(null)
@@ -53,21 +60,6 @@ function confirmRemove() {
   removingStudent.value = null
   editingStudent.value = null
   if (currentPage.value > totalPages.value) currentPage.value = totalPages.value
-}
-
-function handleSaved() {
-  showAddModal.value = false
-}
-
-function handleRemove(student) {
-  if (!confirm(`Remove ${student.name} (${student.id})?`)) return
-  studentsStore.removeStudent(student.id)
-  if (currentPage.value > totalPages.value) currentPage.value = totalPages.value
-}
-
-function pickSection(id) {
-  selectedSectionId.value = id
-  showSectionMenu.value = false
 }
 
 const defaultKeys = ['id', 'name', 'email', 'academicYear', 'yearLevel', 'course', 'section']
@@ -91,12 +83,12 @@ const filteredStudents = computed(() => {
   return sectionStudents.value.filter((student) => {
     return (
         String(student.id).includes(filters.id) &&
-          student.name.toLowerCase().includes(filters.name.toLowerCase()) &&
-          student.email.toLowerCase().includes(filters.email.toLowerCase()) &&
-          student.academicYear.toLowerCase().includes(filters.academicYear.toLowerCase()) &&
-          student.yearLevel.toLowerCase().includes(filters.yearLevel.toLowerCase()) &&
-          student.course.toLowerCase().includes(filters.course.toLowerCase()) &&
-          student.section.toLowerCase().includes(filters.section.toLowerCase())
+        student.name.toLowerCase().includes(filters.name.toLowerCase()) &&
+        student.email.toLowerCase().includes(filters.email.toLowerCase()) &&
+        student.academicYear.toLowerCase().includes(filters.academicYear.toLowerCase()) &&
+        student.yearLevel.toLowerCase().includes(filters.yearLevel.toLowerCase()) &&
+        student.course.toLowerCase().includes(filters.course.toLowerCase()) &&
+        student.section.toLowerCase().includes(filters.section.toLowerCase())
     )
   })
 })
@@ -124,6 +116,7 @@ const sortedStudents = computed(() => {
 
 const currentPage = ref(1)
 const pageSizeOptions = [5, 10, 25]
+const pageSizeChoices = pageSizeOptions.map((size) => ({ value: size, label: String(size) }))
 const pageSize = ref(10)
 const totalPages = computed(() => {
   return Math.max(1, Math.ceil(sortedStudents.value.length / pageSize.value))
@@ -179,7 +172,7 @@ const columns = [
   { key: 'academicYear', label: 'Academic Year (S.Y.)' },
   { key: 'yearLevel', label: 'Year Level' },
   { key: 'course', label: 'Course' },
-  { key: 'section', label: 'Section' }
+  { key: 'section', label: 'Section' },
 ]
 
 watch(visibleKeys, (keys) => {
@@ -197,13 +190,9 @@ watch(
 )
 
 const columnMenuRef = ref(null)
-const sectionMenuRef = ref(null)
 function handleClickOutside(event) {
   if (columnMenuRef.value && !columnMenuRef.value.contains(event.target)) {
     showColumnMenu.value = false
-  }
-  if (sectionMenuRef.value && !sectionMenuRef.value.contains(event.target)) {
-    showSectionMenu.value = false
   }
 }
 
@@ -243,32 +232,10 @@ onBeforeUnmount(() => {
         <div class="relative flex flex-wrap items-center gap-4 px-4 py-4">
 
           <!-- class/section toggle START -->
-          <div ref="sectionMenuRef"
-               class="relative w-full sm:w-72">
-            <div class="relative text-sm font-medium w-full rounded border border-gray-300 bg-white pl-3 pr-3 py-1">
-              <button type="button"
-                      class="flex items-center justify-between gap-2 w-full"
-                      @click="showSectionMenu = !showSectionMenu">
-                {{ sectionTitle }}
-                <ChevronDown class="w-4 h-4 text-gray-500"
-                             :class="showSectionMenu ? 'rotate-180' : ''"/>
-              </button>
-              <div v-if="showSectionMenu"
-                   class="absolute w-72 max-w-[85vw] flex flex-col top-full left-0 right-0 z-20 rounded bg-white border border-gray-300 py-1">
-                <button type="button"
-                        class="w-full text-left px-3 py-2 hover:bg-emerald-100"
-                        @click="pickSection(null)">
-                  All Students
-                </button>
-                <button v-for="section in sections"
-                        :key="section.id"
-                        class="w-full text-left px-3 py-2 hover:bg-emerald-100"
-                        @click="pickSection(section.id)">
-                  {{ section.course }} {{ section.yearLevel }} - {{ section.name }}
-                </button>
-              </div>
-            </div>
-          </div>
+          <BaseSelect v-model="selectedSectionId"
+                      :options="sectionChoices"
+                      size="sm"
+                      class="w-full sm:w-72 text-sm font-medium"/>
           <!-- class/section toggle END -->
 
           <!-- columns START -->
@@ -278,8 +245,9 @@ onBeforeUnmount(() => {
                     class="flex items-center w-full max-w-[85vw] border border-gray-300 rounded bg-white justify-between gap-2 pl-3 pr-3 py-1 text-sm font-medium"
                     @click="showColumnMenu = !showColumnMenu">
               Toggle Columns
-              <ChevronDown class="w-4 h-4 text-gray-500"
-                           :class="showColumnMenu ? 'rotate-180' : ''"/>
+              <SvgIcon name="downlogo"
+                       class="h-4 w-4 text-gray-500"
+                       :class="showColumnMenu ? 'rotate-180' : ''"/>
             </button>
             <div v-if="showColumnMenu"
                  class="absolute max-w-[85vw] w-full flex flex-col gap-1 z-20 pl-4 pr-4 py-4 rounded bg-white border border-gray-300">
@@ -330,11 +298,15 @@ onBeforeUnmount(() => {
                         class="flex items-center gap-1 hover:text-gray-900"
                         @click="toggleSort(col.key)">
                   {{ col.label }}
-                  <ArrowUp v-if="sortColumn === col.key && sortDirection === 'asc'"
-                           class="w-3 h-3 text-gray-900"/>
-                  <ArrowDown v-else-if="sortColumn === col.key" class="w-3 h-3"
-                             :class="sortColumn === col.key ? 'text-gray-900' : 'text-gray-400'"/>
-                  <ArrowUpDown v-else class="w-3 h-3 text-gray-400"/>
+                  <SvgIcon v-if="sortColumn === col.key && sortDirection === 'asc'"
+                           name="uplogo"
+                           class="h-3 w-3 text-gray-900"/>
+                  <SvgIcon v-else-if="sortColumn === col.key"
+                           name="downlogo"
+                           class="h-3 w-3 text-gray-900"/>
+                  <SvgIcon v-else
+                           name="updownlogo"
+                           class="h-3 w-3 text-gray-400"/>
                 </button>
               </th>
               <th class="sticky right-0 z-10 w-14 bg-gray-100 px-2 py-2 text-center whitespace-nowrap shadow-[inset_1px_0_0_#e5e7eb]">
@@ -351,7 +323,7 @@ onBeforeUnmount(() => {
                          class="w-full bg-gray-50 border border-gray-300 rounded pl-7 pr-2 py-1 text-sm font-normal">
                   <button type="button"
                           class="absolute left-1.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                    <Search class="w-3.5 h-3.5"/>
+                    <SvgIcon name="searchlogo" class="h-3.5 w-3.5"/>
                   </button>
                 </div>
               </th>
@@ -370,9 +342,9 @@ onBeforeUnmount(() => {
               <td class="sticky right-0 z-[1] w-14 bg-white px-2 py-2 text-center shadow-[inset_1px_0_0_#e5e7eb]">
                 <button type="button"
                         :aria-label="`Manage ${student.name}`"
-                        class="rounded p-1 opacity-60 hover:opacity-100 hover:bg-gray-100"
+                        class="rounded p-1 text-gray-600 opacity-60 hover:opacity-100 hover:bg-gray-100"
                         @click="editingStudent = student">
-                  <img src="/editlogo.svg" alt="" class="h-4 w-4">
+                  <SvgIcon name="editlogo" class="h-4 w-4"/>
                 </button>
               </td>
             </tr>
@@ -389,14 +361,7 @@ onBeforeUnmount(() => {
           <span>Showing {{ rangeStart }}-{{ rangeEnd }} of {{ sortedStudents.length }}</span>
           <div class="flex flex-wrap items-center gap-2">
             <label class="text-gray-500"> Rows per page </label>
-            <select v-model.number="pageSize"
-                    class="border border-gray-300 rounded bg-white px-2 py-1">
-              <option v-for="size in pageSizeOptions"
-                      :key="size"
-                      :value="size">
-                {{ size }}
-              </option>
-            </select>
+            <BaseSelect v-model="pageSize" :options="pageSizeChoices" size="sm" class="w-20"/>
             <button type="button"
                     :disabled="currentPage === 1"
                     @click="prevPage"

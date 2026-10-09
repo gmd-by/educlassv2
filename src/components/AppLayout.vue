@@ -1,6 +1,7 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { useAuthStore } from "../stores/auth.js";
+import SvgIcon from './SvgIcon.vue'
 
 defineProps( {
   pageName: {
@@ -32,13 +33,23 @@ function handleSignOut() {
           <span class="self-center text-lg text-heading font-semibold whitespace-nowrap"/>
         </RouterLink>
         <hr class="border-emerald-100 opacity-25">
-        <RouterLink to="/dashboard" class="block px-3 py-2 hover:bg-gray-800">Dashboard</RouterLink>
-        <RouterLink to="/students" class="block px-3 py-2 hover:bg-gray-800">Students</RouterLink>
-        <RouterLink to="/announcements" class="block px-3 py-2 hover:bg-gray-800">Announcements</RouterLink>
+        <RouterLink to="/dashboard" class="flex items-center gap-3 rounded px-3 py-2 hover:bg-gray-800">
+          <SvgIcon name="dashboardlogo" class="h-5 w-5"/>
+          Dashboard
+        </RouterLink>
+        <RouterLink to="/students" class="flex items-center gap-3 rounded px-3 py-2 hover:bg-gray-800">
+          <SvgIcon name="studentlogo" class="h-5 w-5"/>
+          Students
+        </RouterLink>
+        <RouterLink to="/announcements" class="flex items-center gap-3 rounded px-3 py-2 hover:bg-gray-800">
+          <SvgIcon name="announcementlogo" class="h-5 w-5"/>
+          Announcements
+        </RouterLink>
       </nav>
       <button
           @click="handleSignOut()"
-          class="w-full text-left px-3 py-2 rounded hover:bg-gray-800">
+          class="flex w-full items-center gap-3 rounded px-3 py-2 text-left hover:bg-gray-800">
+        <SvgIcon name="signoutlogo" class="h-5 w-5"/>
         Sign out
       </button>
     </aside>
