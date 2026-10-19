@@ -7,7 +7,7 @@ import AppLayout from '../components/AppLayout.vue'
 const studentId = ref('')
 const studentsStore = useStudentsStore()
 const foundStudent = ref(null)
-const notFound = ref(false)
+const searchMessage = ref('')
 const totalStudents = computed(() => studentsStore.students.length)
 const totalSections = computed(() => studentsStore.sections.length)
 const chartColors = [
@@ -92,14 +92,22 @@ function toggleExpanded(id) {
 }
 
 function handleLookup() {
-  const match = studentsStore.students.find(s => s.id === studentId.value)
+  const text = studentId.value.trim()
+  if (!text) {
+    foundStudent.value = null
+    searchMessage.value = "Input box is empty. Please enter a valid Student ID."
+    return
+  }
+
+  const match = studentsStore.students.find(s => String(s.id) === text)
+  console.log(JSON.stringify(studentId.value))
 
   if (match) {
     foundStudent.value = match
-    notFound.value = false
-    } else {
+    searchMessage.value = ''
+  } else {
     foundStudent.value = null
-    notFound.value = true
+    searchMessage.value = "No student was found with that Student ID in our database. Try a different ID."
   }
 }
 
@@ -137,7 +145,8 @@ const foundFields = [
             <div class="p-4">
               <p class="text-gray-500 text-sm mb-3">Enter a student ID number.</p>
               <div class="flex gap-2">
-                <input v-model.number="studentId"
+                <input v-model="studentId"
+                       @keyup.enter="handleLookup()"
                        type="text"
                        placeholder="Student ID"
                        class="flex-1 border border-gray-300 rounded px-3 py-2 selection:bg-emerald-100"/>
@@ -176,9 +185,9 @@ const foundFields = [
               </div>
               <!-- found student END -->
 
-              <p v-if="notFound"
+              <p v-if="searchMessage"
                  class="mt-4 text-sm text-red-600">
-                No student was found with that Student ID in our database. Try a different ID.
+                {{ searchMessage }}
               </p>
             </div>
           </div>
