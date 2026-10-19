@@ -363,5 +363,8 @@ const foundFields = [
 /** insert comment
 here 1
  **/
+/** insert comment
+here 2
+ **/
 
 </style>
