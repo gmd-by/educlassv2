@@ -62,34 +62,31 @@ function confirmRemove() {
   if (currentPage.value > totalPages.value) currentPage.value = totalPages.value
 }
 
-const defaultKeys = ['id', 'name', 'email', 'academicYear', 'yearLevel', 'course', 'section']
+const columns = [
+  { key: 'id', label: 'ID' },
+  { key: 'name', label: 'Name' },
+  { key: 'email', label: 'Email' },
+  { key: 'academicYear', label: 'Academic Year (S.Y.)' },
+  { key: 'yearLevel', label: 'Year Level' },
+  { key: 'course', label: 'Course' },
+  { key: 'section', label: 'Section' },
+]
+const defaultKeys = columns.map((col) => col.key)
 const resetKeys = []
 const visibleKeys = ref([...defaultKeys])
 const visibleColumns = computed(() => {
   return columns.filter((col) => visibleKeys.value.includes(col.key))
 })
 
-const filters = reactive({
-  id: '',
-  name: '',
-  email: '',
-  academicYear: '',
-  yearLevel: '',
-  course: '',
-  section: '',
-})
+const filters = reactive(Object.fromEntries(columns.map((col) => [col.key, ''])))
 
 const filteredStudents = computed(() => {
   return sectionStudents.value.filter((student) => {
-    return (
-        String(student.id).includes(filters.id) &&
-        student.name.toLowerCase().includes(filters.name.toLowerCase()) &&
-        student.email.toLowerCase().includes(filters.email.toLowerCase()) &&
-        student.academicYear.toLowerCase().includes(filters.academicYear.toLowerCase()) &&
-        student.yearLevel.toLowerCase().includes(filters.yearLevel.toLowerCase()) &&
-        student.course.toLowerCase().includes(filters.course.toLowerCase()) &&
-        student.section.toLowerCase().includes(filters.section.toLowerCase())
-    )
+    return columns.every((col) => {
+      const value = String(student[col.key]).toLowerCase()
+      const query = filters[col.key].toLowerCase()
+      return value.includes(query)
+    })
   })
 })
 
@@ -164,16 +161,6 @@ function selectAll() {
 function resetColumns() {
   visibleKeys.value = [...resetKeys]
 }
-
-const columns = [
-  { key: 'id', label: 'ID' },
-  { key: 'name', label: 'Name' },
-  { key: 'email', label: 'Email' },
-  { key: 'academicYear', label: 'Academic Year (S.Y.)' },
-  { key: 'yearLevel', label: 'Year Level' },
-  { key: 'course', label: 'Course' },
-  { key: 'section', label: 'Section' },
-]
 
 watch(visibleKeys, (keys) => {
   columns.forEach((col) => {
