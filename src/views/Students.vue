@@ -63,7 +63,6 @@ function confirmRemove() {
 }
 
 const columns = [
-  { key: 'id', label: 'ID' },
   { key: 'name', label: 'Name' },
   { key: 'email', label: 'Email' },
   { key: 'academicYear', label: 'Academic Year (S.Y.)' },
@@ -276,74 +275,78 @@ onBeforeUnmount(() => {
         <!-- table START -->
         <div class="overflow-auto flex-1 min-h-0">
           <template v-if="visibleColumns.length > 0">
-          <table class="min-w-max w-full text-sm text-left">
-            <thead class="sticky top-0 z-10 bg-gray-100 text-gray-700">
-            <tr>
-              <th v-for="col in visibleColumns"
-                  :key="col.key"
-                  :style="{ width: columnWidths[col.key] }"
-                  :class="col.key === 'id' ? 'sticky left-0 z-10 bg-gray-100 shadow-[inset_-1px_0_0_#e5e7eb]' : ''"
-                  class="px-4 py-2 whitespace-nowrap">
-                <button type="button"
-                        class="flex items-center gap-1 hover:text-gray-900"
-                        @click="toggleSort(col.key)">
-                  {{ col.label }}
-                  <SvgIcon v-if="sortColumn === col.key && sortDirection === 'asc'"
-                           name="uplogo"
-                           class="h-3 w-3 text-gray-900"/>
-                  <SvgIcon v-else-if="sortColumn === col.key"
-                           name="downlogo"
-                           class="h-3 w-3 text-gray-900"/>
-                  <SvgIcon v-else
-                           name="updownlogo"
-                           class="h-3 w-3 text-gray-400"/>
-                </button>
-              </th>
-              <th class="sticky right-0 z-10 w-14 bg-gray-100 px-2 py-2 text-center whitespace-nowrap shadow-[inset_1px_0_0_#e5e7eb]">
-                Edit
-              </th>
-            </tr>
-            <tr>
-              <th v-for="col in visibleColumns"
-                  :key="col.key"
-                  :class="col.key === 'id' ? 'sticky left-0 z-10 bg-gray-100 shadow-[inset_-1px_0_0_#e5e7eb]' : ''"
-                  class="px-4 pb-2">
-                <div class="relative">
-                  <input v-model="filters[col.key]"
-                         class="w-full bg-gray-50 border border-gray-300 rounded pl-7 pr-2 py-1 text-sm font-normal">
+            <table class="min-w-max w-full text-sm text-left">
+              <thead class="sticky top-0 z-10 bg-gray-100 text-gray-700">
+              <tr>
+                <th class="sticky left-0 z-10 w-14 bg-gray-100 px-2 py-2 text-center whitespace-nowrap shadow-[inset_-1px_0_0_#e5e7eb]">
+                  No.
+                </th>
+                <th v-for="col in visibleColumns"
+                    :key="col.key"
+                    :style="{ width: columnWidths[col.key] }"
+                    class="px-4 py-2 whitespace-nowrap">
                   <button type="button"
-                          class="absolute left-1.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                    <SvgIcon name="searchlogo" class="h-3.5 w-3.5"/>
+                          class="flex items-center gap-1 hover:text-gray-900"
+                          @click="toggleSort(col.key)">
+                    {{ col.label }}
+                    <SvgIcon v-if="sortColumn === col.key && sortDirection === 'asc'"
+                             name="uplogo"
+                             class="h-3 w-3 text-gray-900"/>
+                    <SvgIcon v-else-if="sortColumn === col.key"
+                             name="downlogo"
+                             class="h-3 w-3 text-gray-900"/>
+                    <SvgIcon v-else
+                             name="updownlogo"
+                             class="h-3 w-3 text-gray-400"/>
                   </button>
-                </div>
-              </th>
-              <th class="sticky right-0 z-10 w-14 bg-gray-100 px-2 pb-2 shadow-[inset_1px_0_0_#e5e7eb]"></th>
-            </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-            <tr v-for="student in pagedStudents"
-                :key="student.id">
-              <td v-for="col in visibleColumns"
-                  :key="col.key"
-                  :class="col.key === 'id' ? 'sticky left-0 z-[1] bg-white shadow-[inset_-1px_0_0_#e5e7eb]' : ''"
-                  class="px-4 py-2 whitespace-nowrap">
-                {{ student[col.key] }}
-              </td>
-              <td class="sticky right-0 z-[1] w-14 bg-white px-2 py-2 text-center shadow-[inset_1px_0_0_#e5e7eb]">
-                <button type="button"
-                        :aria-label="`Manage ${student.name}`"
-                        class="rounded p-1 text-gray-600 opacity-60 hover:opacity-100 hover:bg-gray-100"
-                        @click="editingStudent = student">
-                  <SvgIcon name="editlogo" class="h-4 w-4"/>
-                </button>
-              </td>
-            </tr>
-            </tbody>
-          </table>
-          <p v-if="sortedStudents.length === 0"
-             class="px-4 py-10 text-center text-sm text-gray-500">
-            No results match your filters.
-          </p>
+                </th>
+                <th class="sticky right-0 z-10 w-14 bg-gray-100 px-2 py-2 text-center whitespace-nowrap shadow-[inset_1px_0_0_#e5e7eb]">
+                  Edit
+                </th>
+              </tr>
+              <tr>
+                <th class="sticky left-0 z-10 w-14 bg-gray-100 px-2 pb-2 shadow-[inset_-1px_0_0_#e5e7eb]"></th>
+                <th v-for="col in visibleColumns"
+                    :key="col.key"
+                    class="px-4 pb-2">
+                  <div class="relative">
+                    <input v-model="filters[col.key]"
+                           class="w-full bg-gray-50 border border-gray-300 rounded pl-7 pr-2 py-1 text-sm font-normal">
+                    <button type="button"
+                            class="absolute left-1.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                      <SvgIcon name="searchlogo" class="h-3.5 w-3.5"/>
+                    </button>
+                  </div>
+                </th>
+                <th class="sticky right-0 z-10 w-14 bg-gray-100 px-2 pb-2 shadow-[inset_1px_0_0_#e5e7eb]"></th>
+              </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200">
+              <tr v-for="(student, index) in pagedStudents"
+                  :key="student.id">
+                <td class="sticky left-0 z-[1] w-14 bg-white px-2 py-2 text-center whitespace-nowrap shadow-[inset_-1px_0_0_#e5e7eb]">
+                  {{ rangeStart + index }}
+                </td>
+                <td v-for="col in visibleColumns"
+                    :key="col.key"
+                    class="px-4 py-2 whitespace-nowrap">
+                  {{ student[col.key] }}
+                </td>
+                <td class="sticky right-0 z-[1] w-14 bg-white px-2 py-2 text-center shadow-[inset_1px_0_0_#e5e7eb]">
+                  <button type="button"
+                          :aria-label="`Manage ${student.name}`"
+                          class="rounded p-1 text-gray-600 opacity-60 hover:opacity-100 hover:bg-gray-100"
+                          @click="editingStudent = student">
+                    <SvgIcon name="editlogo" class="h-4 w-4"/>
+                  </button>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+            <p v-if="sortedStudents.length === 0"
+               class="px-4 py-10 text-center text-sm text-gray-500">
+              No results match your filters.
+            </p>
           </template>
           <div v-else
                class="flex min-h-64 items-center justify-center px-4 py-10 text-center text-sm text-gray-500">
