@@ -8,6 +8,7 @@ import { ref, reactive, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useStudentsStore } from '../stores/students'
 import { storeToRefs } from 'pinia'
 import { sectionLabel } from '../utils/sectionLabel'
+import { usePagination } from "../composables/usePagination.js";
 
 const columnWidths = computed(() => {
   const widths = {}
@@ -25,6 +26,11 @@ const sortColumn = ref(null)
 const sortDirection = ref('desc')
 const studentsStore = useStudentsStore()
 const { selectedSectionId, sections } = storeToRefs(studentsStore)
+
+const sectionStudents = computed(() => {
+  if (selectedSectionId.value === null) return studentRows.value
+  return studentRows.value.filter((student) => student.sectionId === selectedSectionId.value)
+})
 
 const studentRows = computed(() => {
   return studentsStore.students.map((student) => {
@@ -60,7 +66,6 @@ function confirmRemove() {
   studentsStore.removeStudent(removingStudent.value.id)
   removingStudent.value = null
   editingStudent.value = null
-  if (currentPage.value > totalPages.value) currentPage.value = totalPages.value
 }
 
 const columns = [
@@ -106,39 +111,19 @@ const sortedStudents = computed(() => {
   })
 })
 
-const currentPage = ref(1)
 const pageSizeOptions = [5, 10, 25]
 const pageSizeChoices = pageSizeOptions.map((size) => ({ value: size, label: String(size) }))
 const pageSize = ref(10)
-const totalPages = computed(() => {
-  return Math.max(1, Math.ceil(sortedStudents.value.length / pageSize.value))
-})
 
-const pagedStudents = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value
-  return sortedStudents.value.slice(start, start + pageSize.value)
-})
-
-const rangeStart = computed(() => {
-  return sortedStudents.value.length === 0 ? 0 : (currentPage.value - 1) * pageSize.value + 1
-})
-
-const rangeEnd = computed(() => {
-  return Math.min(currentPage.value * pageSize.value, sortedStudents.value.length)
-})
-
-function prevPage() {
-  if (currentPage.value > 1) currentPage.value--
-}
-
-function nextPage() {
-  if (currentPage.value < totalPages.value) currentPage.value++
-}
-
-const sectionStudents = computed(() => {
-  if (selectedSectionId.value === null) return studentRows.value
-  return studentRows.value.filter((student) => student.sectionId === selectedSectionId.value)
-})
+const {
+  currentPage,
+    totalPages,
+    pagedItems: pagedStudents,
+    rangeStart,
+    rangeEnd,
+    prev: prevPage,
+    next: nextPage,
+} = usePagination(sortedStudents, pageSize)
 
 function toggleSort(column) {
   if (sortColumn.value === column) {

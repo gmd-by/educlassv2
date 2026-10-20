@@ -2,6 +2,7 @@
 import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useStudentsStore } from '../stores/students'
 import { useAnnouncementStore } from "../stores/announcements.js";
+import { usePagination } from "../composables/usePagination.js";
 import { sectionLabel } from '../utils/sectionLabel'
 import AppLayout from '../components/AppLayout.vue'
 import DonutChart from '../components/DonutChart.vue'
@@ -16,24 +17,14 @@ const announcementsStore = useAnnouncementStore()
 const posts = computed(() => announcementsStore.posts)
 const postsPerPage = ref(2)
 const postListRef = ref(null)
-const postPage = ref(1)
 
-const totalPostPages = computed(() => {
-  return Math.max(1, Math.ceil(posts.value.length / postsPerPage.value))
-})
-
-const pagedPosts = computed(() => {
-  const start = (postPage.value - 1) * postsPerPage.value
-  return posts.value.slice(start, start + postsPerPage.value)
-})
-
-function prevPostPage() {
-  if (postPage.value > 1) postPage.value--
-}
-
-function nextPostPage() {
-  if (postPage.value < totalPostPages.value) postPage.value++
-}
+const {
+  currentPage: postPage,
+    totalPages: totalPostPages,
+    pagedItems: pagedPosts,
+    prev: prevPostPage,
+    next: nextPostPage,
+} = usePagination(posts, postsPerPage)
 
 const studentsPerSection = computed(() => {
   return studentsStore.sections.map((section) => {
@@ -133,9 +124,6 @@ function handleResize() {
 
 watch(pagedPosts, () => nextTick(checkOverflow))
 watch(posts, () => nextTick(fitPostsToHeight))
-watch(totalPostPages, (n) => {
-  if (postPage.value > n) postPage.value = n
-})
 
 onMounted(() => {
   window.addEventListener('resize', handleResize)
