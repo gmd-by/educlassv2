@@ -4,6 +4,7 @@ import { useStudentsStore } from '../stores/students'
 import { useAnnouncementStore } from "../stores/announcements.js";
 import { sectionLabel } from '../utils/sectionLabel'
 import AppLayout from '../components/AppLayout.vue'
+import DonutChart from '../components/DonutChart.vue'
 
 const studentId = ref('')
 const studentsStore = useStudentsStore()
@@ -11,9 +12,6 @@ const foundStudent = ref(null)
 const searchMessage = ref('')
 const totalStudents = computed(() => studentsStore.students.length)
 const totalSections = computed(() => studentsStore.sections.length)
-const chartColors = [
-  '#b91c1c', '#65a30d', '#d97706', '#0f766e', '#eab308', '#1e40af', '#78716c', '#c026d3'
-]
 const announcementsStore = useAnnouncementStore()
 const posts = computed(() => announcementsStore.posts)
 const postsPerPage = ref(2)
@@ -37,12 +35,10 @@ function nextPostPage() {
   if (postPage.value < totalPostPages.value) postPage.value++
 }
 
-const circumference = 2 * Math.PI * 36
-
 const studentsPerSection = computed(() => {
   return studentsStore.sections.map((section) => {
     return {
-      id: section.id,
+      key: section.id,
       label: sectionLabel(section),
       count: studentsStore.students.filter((s) => s.sectionId === section.id).length,
     }
@@ -53,7 +49,8 @@ const studentsPerCourse = computed(() => {
   const courses = [...new Set(studentsStore.students.map((s) => s.course))]
   return courses.map((course) => {
     return {
-      course: course,
+      key: course,
+      label: course,
       count: studentsStore.students.filter((s) => s.course === course).length,
     }
   })
@@ -66,27 +63,6 @@ function isExpanded(id) {
 
 const bodyRefs = ref([])
 const overflowingIds = ref([])
-
-function buildSlices(items, keyName) {
-  let total = 0
-  items.forEach((item) => {
-    total = total + item.count
-  })
-  if (total === 0 ) return []
-  let startAt = 0
-  return items.map((item) => {
-    const length = (item.count / total) * circumference
-    const slice = {
-      key: item[keyName],
-      length: length,
-      offset: -startAt,
-    }
-    startAt = startAt + length
-    return slice
-  })
-}
-const courseSlices = computed(() => buildSlices(studentsPerCourse.value, 'course'))
-const sectionSlices = computed(() => buildSlices(studentsPerSection.value, 'id'))
 
 function toggleExpanded(id) {
   if (isExpanded(id)) {
@@ -272,71 +248,11 @@ onBeforeUnmount(() => {
             <!-- sections END -->
 
             <!-- students per course (doughnut) START -->
-            <div class="bg-white rounded shadow overflow-hidden flex flex-col">
-              <h2 class="bg-emerald-700 text-white font-medium text-sm px-4 py-2 border-b border-emerald-700">
-                STUDENTS PER COURSE
-              </h2>
-              <div class="p-4 flex flex-col xl:flex-row items-center gap-4 flex-1">
-                <div class="relative h-24 w-24 shrink-0">
-                  <svg viewBox="0 0 100 100" class="h-full w-full -rotate-90">
-                    <circle v-for="(slice, index) in courseSlices"
-                            :key="slice.key"
-                            cx="50" cy="50" r="36"
-                            fill="none"
-                            stroke-width="16"
-                            :stroke="chartColors[index]"
-                            :stroke-dasharray="`${slice.length} ${circumference - slice.length}`"
-                            :stroke-dashoffset="slice.offset"/>
-                  </svg>
-                </div>
-                <ul class="w-full xl:flex-1">
-                  <li v-for="(item, index) in studentsPerCourse"
-                      :key="item.course"
-                      class="flex justify-between gap-3 py-1 text-xs">
-                    <span class="flex items-center gap-2 text-gray-600">
-                      <span class="h-2.5 w-2.5 rounded-full shrink-0"
-                            :style="{ backgroundColor: chartColors[index] }"></span>
-                      {{ item.course }}
-                    </span>
-                    <span class="font-semibold text-gray-800">{{ item.count }}</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
+            <DonutChart title="STUDENTS PER COURSE" :items="studentsPerCourse"/>
             <!-- students per course (doughnut) END -->
 
             <!-- students per section (doughnut) START -->
-            <div class="bg-white rounded shadow overflow-hidden flex flex-col">
-              <h2 class="bg-emerald-700 text-white font-medium text-sm px-4 py-2 border-b border-emerald-700">
-                STUDENTS PER SECTION
-              </h2>
-              <div class="p-4 flex flex-col xl:flex-row items-center gap-4 flex-1">
-                <div class="relative h-24 w-24 shrink-0">
-                  <svg viewBox="0 0 100 100" class="h-full w-full -rotate-90">
-                    <circle v-for="(slice, index) in sectionSlices"
-                            :key="slice.key"
-                            cx="50" cy="50" r="36"
-                            fill="none"
-                            stroke-width="16"
-                            :stroke="chartColors[index]"
-                            :stroke-dasharray="`${slice.length} ${circumference - slice.length}`"
-                            :stroke-dashoffset="slice.offset"/>
-                  </svg>
-                </div>
-                <ul class="w-full xl:flex-1">
-                  <li v-for="(section, index) in studentsPerSection"
-                      :key="section.id"
-                      class="flex justify-between gap-3 py-1 text-xs">
-                    <span class="flex items-center gap-2 text-gray-600">
-                      <span class="h-2.5 w-2.5 rounded-full shrink-0"
-                            :style="{ backgroundColor: chartColors[index] }"></span>
-                      {{ section.label }}
-                    </span>
-                    <span class="font-semibold text-gray-800">{{ section.count }}</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
+            <DonutChart title="STUDENTS PER SECTION" :items="studentsPerSection"/>
             <!-- students per section (doughnut) END -->
 
           </div>
