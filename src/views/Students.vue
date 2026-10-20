@@ -7,6 +7,7 @@ import BaseSelect from '../components/BaseSelect.vue'
 import { ref, reactive, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useStudentsStore } from '../stores/students'
 import { storeToRefs } from 'pinia'
+import { sectionLabel } from '../utils/sectionLabel'
 
 const columnWidths = computed(() => {
   const widths = {}
@@ -31,7 +32,7 @@ const studentRows = computed(() => {
     return {
       ...student,
       section: section
-          ? `${section.course} ${section.yearLevel} - ${section.name}`
+          ? sectionLabel(section)
           : 'Unassigned',
     }
   })
@@ -41,7 +42,7 @@ const sectionChoices = computed(() => [
   { value: null, label: 'All Students' },
   ...sections.value.map((section) => ({
     value: section.id,
-    label: `${section.course} ${section.yearLevel} - ${section.name}`,
+    label: sectionLabel(section)
   })),
 ])
 
@@ -95,18 +96,13 @@ const sortedStudents = computed(() => {
   const column = sortColumn.value
   const direction = sortDirection.value
 
-  return [...filteredStudents.value].sort((a,b) => {
-    let valA = a[column]
-    let valB = b[column]
+  return [...filteredStudents.value].sort((a, b) => {
+    const valA = a[column]
+    const valB = b[column]
 
-    if (typeof valA === 'string') {
-      valA = valA.toLowerCase()
-      valB = valB.toLowerCase()
-    }
-
-    if (valA < valB) return direction === 'asc' ? -1 : 1
-    if (valA > valB) return direction === 'asc' ? 1 : -1
-    return 0
+    return direction === 'asc'
+      ? String(valA).localeCompare(String(valB), undefined, { numeric: true })
+        : String(valB).localeCompare(String(valA), undefined, { numeric: true })
   })
 })
 
@@ -149,7 +145,7 @@ function toggleSort(column) {
     sortDirection.value = sortDirection.value === 'desc' ? 'asc' : 'desc'
   } else {
     sortColumn.value = column
-    sortDirection.value = 'desc'
+    sortDirection.value = 'asc'
   }
 }
 
@@ -353,7 +349,7 @@ onBeforeUnmount(() => {
             Nothing to see here. Select one or more columns to return display.
           </div>
         </div>
-        <!--table END -->
+        <!-- table END -->
 
         <!-- footer START -->
         <div class="flex flex-wrap items-center justify-between gap-3 shrink-0 px-4 py-3 text-sm text-gray-600 border-t border-gray-200">

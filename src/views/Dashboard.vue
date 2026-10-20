@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { useStudentsStore } from '../stores/students'
 import { useAnnouncementStore } from "../stores/announcements.js";
+import { sectionLabel } from '../utils/sectionLabel'
 import AppLayout from '../components/AppLayout.vue'
 
 const studentId = ref('')
@@ -41,7 +42,7 @@ const studentsPerSection = computed(() => {
   return studentsStore.sections.map((section) => {
     return {
       id: section.id,
-      label: `${section.course} ${section.yearLevel} - ${section.name}`,
+      label: sectionLabel(section),
       count: studentsStore.students.filter((s) => s.sectionId === section.id).length,
     }
   })
