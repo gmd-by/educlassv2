@@ -339,9 +339,13 @@ onBeforeUnmount(() => {
               </tr>
               </tbody>
             </table>
-            <p v-if="sortedStudents.length === 0"
+            <p v-if="studentRows.length === 0"
                class="px-4 py-10 text-center text-sm text-gray-500">
-              No results match your filters.
+              No students currently found in database.
+            </p>
+            <p v-else-if="sortedStudents.length === 0"
+               class="px-4 py-10 text-center text-sm text-gray-500">
+              No results match your input.
             </p>
           </template>
           <div v-else
