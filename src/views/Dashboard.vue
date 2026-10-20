@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useStudentsStore } from '../stores/students'
 import { useAnnouncementStore } from "../stores/announcements.js";
 import { sectionLabel } from '../utils/sectionLabel'
@@ -63,6 +63,9 @@ function isExpanded(id) {
   return expandedIds.value.includes(id)
 }
 
+const bodyRefs = ref([])
+const overflowingIds = ref([])
+
 function buildSlices(items, keyName) {
   let total = 0
   items.forEach((item) => {
@@ -120,6 +123,27 @@ const foundFields = [
   { key: 'yearLevel', label: 'YEAR LEVEL' },
   { key: 'course', label: 'COURSE' }
 ]
+
+function checkOverflow() {
+  const ids = []
+  bodyRefs.value.forEach((el) => {
+    const id = el.dataset.id
+    const isOpen = expandedIds.value.some((i) => String(i) === id)
+    if (isOpen || el.scrollWidth > el.clientWidth) {
+      ids.push(id)
+    }
+  })
+  overflowingIds.value = ids
+}
+
+watch(pagedPosts, () => nextTick(checkOverflow))
+
+onMounted(() => {
+  window.addEventListener('resize', checkOverflow)
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', checkOverflow)
+})
 </script>
 
 <template>
@@ -315,14 +339,19 @@ const foundFields = [
                 <span class="text-xs text-gray-400">{{ post.date }}</span>
               </div>
               <p class="text-xs text-gray-500 mb-1">{{ post.author }}</p>
-              <p class="text-sm text-gray-600"
+              <p ref="bodyRefs"
+                 class="text-sm text-gray-600"
+                 :data-id="post.id"
                  :class="isExpanded(post.id) ? '' : 'truncate'">{{ post.body }}</p>
               <div class="text-right">
+                <div v="if=overflowingIds.includes(String(post.id))"
+                     class="text-right">
                 <button type="button"
                         @click="toggleExpanded(post.id)"
                         class="text-xs text-emerald-700 hover:underline">
                   {{ isExpanded(post.id) ? 'Show less' : 'Show more...' }}
                 </button>
+                </div>
               </div>
             </div>
           </div>
