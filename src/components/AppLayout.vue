@@ -49,9 +49,9 @@ function handleSignOut() {
     </aside>
     <!-- sidebar END -->
 
-    <main class="flex-1 overflow-y-auto bg-gray-100">
+    <main class="flex flex-2 flex-col overflow-y-auto bg-gray-100">
       <!-- header START -->
-      <div class="sticky top-0 z-10 flex items-center h-[62px] px-6 bg-white shadow">
+      <div class="sticky top-0 z-10 flex shrink-0 items-center h-[62px] px-6 bg-white shadow">
         <span class="font-semibold text-gray-700">{{ pageName }}</span>
       </div>
       <!-- header END -->

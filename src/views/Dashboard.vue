@@ -12,20 +12,21 @@ const searchMessage = ref('')
 const totalStudents = computed(() => studentsStore.students.length)
 const totalSections = computed(() => studentsStore.sections.length)
 const chartColors = [
-    '#b91c1c', '#65a30d', '#d97706', '#0f766e', '#eab308', '#1e40af', '#78716c', '#c026d3'
+  '#b91c1c', '#65a30d', '#d97706', '#0f766e', '#eab308', '#1e40af', '#78716c', '#c026d3'
 ]
 const announcementsStore = useAnnouncementStore()
 const posts = computed(() => announcementsStore.posts)
-const postsPerPage = 2
+const postsPerPage = ref(2)
+const postListRef = ref(null)
 const postPage = ref(1)
 
 const totalPostPages = computed(() => {
-  return Math.max(1, Math.ceil(posts.value.length / postsPerPage))
+  return Math.max(1, Math.ceil(posts.value.length / postsPerPage.value))
 })
 
 const pagedPosts = computed(() => {
-  const start = (postPage.value - 1) * postsPerPage
-  return posts.value.slice(start, start + postsPerPage)
+  const start = (postPage.value - 1) * postsPerPage.value
+  return posts.value.slice(start, start + postsPerPage.value)
 })
 
 function prevPostPage() {
@@ -104,7 +105,6 @@ function handleLookup() {
   }
 
   const match = studentsStore.students.find(s => String(s.id) === text)
-  console.log(JSON.stringify(studentId.value))
 
   if (match) {
     foundStudent.value = match
@@ -136,19 +136,43 @@ function checkOverflow() {
   overflowingIds.value = ids
 }
 
+function fitPostsToHeight() {
+  const list = postListRef.value
+  if (!list || !list.firstElementChild) return
+  if (expandedIds.value.length > 0) return
+
+  const isWide = window.matchMedia('(min-width: 1024px)').matches
+  if (!isWide) {
+    postsPerPage.value = 2
+    return
+  }
+  const fit = Math.floor(list.clientHeight / list.firstElementChild.offsetHeight)
+  postsPerPage.value = Math.max(2, fit)
+}
+
+function handleResize() {
+  fitPostsToHeight()
+  nextTick(checkOverflow)
+}
+
 watch(pagedPosts, () => nextTick(checkOverflow))
+watch(posts, () => nextTick(fitPostsToHeight))
+watch(totalPostPages, (n) => {
+  if (postPage.value > n) postPage.value = n
+})
 
 onMounted(() => {
-  window.addEventListener('resize', checkOverflow)
+  window.addEventListener('resize', handleResize)
+  handleResize()
 })
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', checkOverflow)
+  window.removeEventListener('resize', handleResize)
 })
 </script>
 
 <template>
   <AppLayout page-name="Dashboard">
-  <!-- banner START -->
+    <!-- banner START -->
     <div class="relative overflow-hidden h-32 mb-6 shrink-0 bg-emerald-600">
       <img src="/bannerlogo.svg"
            alt=""
@@ -156,14 +180,14 @@ onBeforeUnmount(() => {
     </div>
     <!-- banner END -->
 
-    <div class="w-full mb-6 px-[25px]">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div class="flex flex-1 flex-col w-full mb-6 px-[25px]">
+      <div class="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-        <!-- I. left column START -->
+        <!-- left column START -->
         <div class="lg:col-span-2 flex flex-col gap-4">
 
           <!-- student search START -->
-          <div class="bg-white rounded shadow overflow-hidden flex-1">
+          <div class="bg-white rounded shadow overflow-hidden">
             <h2 class="bg-emerald-700 text-white font-medium text-sm px-4 py-2 border-b border-emerald-700">
               QUICK SEARCH
             </h2>
@@ -219,7 +243,7 @@ onBeforeUnmount(() => {
           <!-- student search END -->
 
           <!-- layout (2x2) START -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 sm:grid-rows-[auto_1fr] gap-4">
 
             <!-- total students START -->
             <div class="relative overflow-hidden bg-white rounded shadow p-4 h-24">
@@ -229,7 +253,7 @@ onBeforeUnmount(() => {
                    viewBox="0 0 640 640"
                    fill="currentColor"
                    class="absolute -right-1 -bottom-9 h-32 w-32 text-emerald-600 opacity-20 pointer-events-none">
-                   <path d="M240 192C240 147.8 275.8 112 320 112C364.2 112 400 147.8 400 192C400 236.2 364.2 272 320 272C275.8 272 240 236.2 240 192zM448 192C448 121.3 390.7 64 320 64C249.3 64 192 121.3 192 192C192 262.7 249.3 320 320 320C390.7 320 448 262.7 448 192zM144 544C144 473.3 201.3 416 272 416L368 416C438.7 416 496 473.3 496 544L496 552C496 565.3 506.7 576 520 576C533.3 576 544 565.3 544 552L544 544C544 446.8 465.2 368 368 368L272 368C174.8 368 96 446.8 96 544L96 552C96 565.3 106.7 576 120 576C133.3 576 144 565.3 144 552L144 544z"/>
+                <path d="M240 192C240 147.8 275.8 112 320 112C364.2 112 400 147.8 400 192C400 236.2 364.2 272 320 272C275.8 272 240 236.2 240 192zM448 192C448 121.3 390.7 64 320 64C249.3 64 192 121.3 192 192C192 262.7 249.3 320 320 320C390.7 320 448 262.7 448 192zM144 544C144 473.3 201.3 416 272 416L368 416C438.7 416 496 473.3 496 544L496 552C496 565.3 506.7 576 520 576C533.3 576 544 565.3 544 552L544 544C544 446.8 465.2 368 368 368L272 368C174.8 368 96 446.8 96 544L96 552C96 565.3 106.7 576 120 576C133.3 576 144 565.3 144 552L144 544z"/>
               </svg>
             </div>
             <!-- total students END -->
@@ -247,7 +271,7 @@ onBeforeUnmount(() => {
             </div>
             <!-- sections END -->
 
-            <!-- sections per course (doughnut) START -->
+            <!-- students per course (doughnut) START -->
             <div class="bg-white rounded shadow overflow-hidden flex flex-col">
               <h2 class="bg-emerald-700 text-white font-medium text-sm px-4 py-2 border-b border-emerald-700">
                 STUDENTS PER COURSE
@@ -316,73 +340,76 @@ onBeforeUnmount(() => {
             <!-- students per section (doughnut) END -->
 
           </div>
-          <!-- stats and rings (2x2) END -->
+          <!-- layout (2x2) END -->
 
         </div>
         <!-- left column END -->
 
         <!-- news column START -->
-        <div class="bg-white rounded shadow overflow-hidden flex flex-col">
-          <h2 class="bg-emerald-700 text-white font-medium text-sm px-4 py-2 border-b border-emerald-700">
-            ANNOUNCEMENTS
-          </h2>
-          <div class="px-4 divide-y divide-gray-200 flex-1">
-            <div v-for="post in pagedPosts"
-                 :key="post.id"
-                 class="py-3">
-              <img :src="post.image || '/newsplaceholder.webp'"
-                   :alt="post.image ? post.title : ''"
-                   loading="lazy"
-                   class="mb-2 h-32 w-full rounded object-cover">
-              <div class="flex justify-between items-baseline">
-                <h3 class="font-semibold text-gray-800 text-sm">{{ post.title }}</h3>
-                <span class="text-xs text-gray-400">{{ post.date }}</span>
-              </div>
-              <p class="text-xs text-gray-500 mb-1">{{ post.author }}</p>
-              <p ref="bodyRefs"
-                 class="text-sm text-gray-600"
-                 :data-id="post.id"
-                 :class="isExpanded(post.id) ? '' : 'truncate'">{{ post.body }}</p>
-              <div class="text-right">
-                <div v="if=overflowingIds.includes(String(post.id))"
+        <div class="relative">
+          <div class="bg-white rounded shadow overflow-hidden flex flex-col lg:absolute lg:inset-0">
+            <h2 class="bg-emerald-700 text-white font-medium text-sm px-4 py-2 border-b border-emerald-700">
+              ANNOUNCEMENTS
+            </h2>
+
+            <div ref="postListRef"
+                 class="px-4 divide-y divide-gray-200 flex-1 min-h-0 overflow-y-auto">
+              <div v-for="post in pagedPosts"
+                   :key="post.id"
+                   class="py-3">
+                <img :src="post.image || '/newsplaceholder.webp'"
+                     :alt="post.image ? post.title : ''"
+                     loading="lazy"
+                     class="mb-2 h-32 w-full rounded object-cover">
+                <div class="flex justify-between items-baseline">
+                  <h3 class="font-semibold text-gray-800 text-sm">{{ post.title }}</h3>
+                  <span class="text-xs text-gray-400">{{ post.date }}</span>
+                </div>
+                <p class="text-xs text-gray-500 mb-1">{{ post.author }}</p>
+                <p ref="bodyRefs"
+                   class="text-sm text-gray-600"
+                   :data-id="post.id"
+                   :class="isExpanded(post.id) ? '' : 'truncate'">{{ post.body }}</p>
+                <div v-if="overflowingIds.includes(String(post.id))"
                      class="text-right">
-                <button type="button"
-                        @click="toggleExpanded(post.id)"
-                        class="text-xs text-emerald-700 hover:underline">
-                  {{ isExpanded(post.id) ? 'Show less' : 'Show more...' }}
-                </button>
+                  <button type="button"
+                          @click="toggleExpanded(post.id)"
+                          class="text-xs text-emerald-700 hover:underline">
+                    {{ isExpanded(post.id) ? 'Show less' : 'Show more...' }}
+                  </button>
                 </div>
               </div>
             </div>
-          </div>
 
-          <!-- pager START -->
-          <div class="flex items-center justify-between gap-2 px-4 py-3 border-t border-gray-200 text-sm text-gray-600">
-            <RouterLink to="/announcements"
-                        class="text-emerald-700 hover:underline">
-              View all
-            </RouterLink>
-            <div v-if="totalPostPages > 1"
-                 class="flex items-center gap-2">
-              <button type="button"
-                      :disabled="postPage === 1"
-                      @click="prevPostPage"
-                      class="border border-gray-300 rounded bg-white px-3 py-1 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white">
-                Newer
-              </button>
-              <span>{{ postPage }} / {{ totalPostPages }}</span>
-              <button type="button"
-                      :disabled="postPage === totalPostPages"
-                      @click="nextPostPage"
-                      class="border border-gray-300 rounded bg-white px-3 py-1 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white">
-                Older
-              </button>
+            <!-- pager START -->
+            <div class="flex items-center justify-between gap-2 px-4 py-3 border-t border-gray-200 text-sm text-gray-600">
+              <RouterLink to="/announcements"
+                          class="text-emerald-700 hover:underline">
+                View all
+              </RouterLink>
+              <div v-if="totalPostPages > 1"
+                   class="flex items-center gap-2">
+                <button type="button"
+                        :disabled="postPage === 1"
+                        @click="prevPostPage"
+                        class="border border-gray-300 rounded bg-white px-3 py-1 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white">
+                  Newer
+                </button>
+                <span>{{ postPage }} / {{ totalPostPages }}</span>
+                <button type="button"
+                        :disabled="postPage === totalPostPages"
+                        @click="nextPostPage"
+                        class="border border-gray-300 rounded bg-white px-3 py-1 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white">
+                  Older
+                </button>
+              </div>
             </div>
-          </div>
-          <!-- pager END -->
+            <!-- pager END -->
 
+          </div>
         </div>
-        <!-- VIII. news column END -->
+        <!-- news column END -->
+
       </div>
     </div>
   </AppLayout>
