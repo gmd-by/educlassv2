@@ -3,7 +3,6 @@ import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useStudentsStore } from '../stores/students'
 import { useAnnouncementStore } from "../stores/announcements.js";
 import { usePagination } from "../composables/usePagination.js";
-import { sectionLabel } from '../utils/sectionLabel'
 import AppLayout from '../components/AppLayout.vue'
 import DonutChart from '../components/DonutChart.vue'
 
@@ -30,7 +29,7 @@ const studentsPerSection = computed(() => {
   return studentsStore.sections.map((section) => {
     return {
       key: section.id,
-      label: sectionLabel(section),
+      label: section.label,
       count: studentsStore.students.filter((s) => s.sectionId === section.id).length,
     }
   })

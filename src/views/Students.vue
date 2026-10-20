@@ -7,7 +7,6 @@ import BaseSelect from '../components/BaseSelect.vue'
 import { ref, reactive, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useStudentsStore } from '../stores/students'
 import { storeToRefs } from 'pinia'
-import { sectionLabel } from '../utils/sectionLabel'
 import { usePagination } from "../composables/usePagination.js";
 
 const columnWidths = computed(() => {
@@ -33,23 +32,18 @@ const sectionStudents = computed(() => {
 })
 
 const studentRows = computed(() => {
-  return studentsStore.students.map((student) => {
-    const section = sections.value.find((s) => s.id === student.sectionId)
-    return {
-      ...student,
-      section: section
-          ? sectionLabel(section)
-          : 'Unassigned',
-    }
-  })
+  return studentsStore.students.map((student) => ({
+    ...student,
+    section: studentsStore.sectionsById.get(student.sectionId)?.label ?? 'Unassigned',
+  }))
 })
 
 const sectionChoices = computed(() => [
   { value: null, label: 'All Students' },
-  ...sections.value.map((section) => ({
-    value: section.id,
-    label: sectionLabel(section)
-  })),
+    ...sections.value.map((section) => ({
+      value: section.id,
+      label: section.label,
+    })),
 ])
 
 const showColumnMenu = ref(false)
