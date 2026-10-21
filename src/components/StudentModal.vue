@@ -109,10 +109,11 @@ async function handlePhotoChange(event) {
 function validate() {
   Object.keys(errors).forEach((key) => delete errors[key])
 
-  if (!isEditing) {
-    if (!Number.isInteger(form.id) || form.id <= 0) {
+  if (!isEditing) {if (!isEditing) {
+    const idText = String(form.id).trim()
+    if (!/^\d+$/.test(idText) || Number(idText) <= 0) {
       errors.id = 'Enter a student number.'
-    } else if (store.students.some((s) => s.id === form.id)) {
+    } else if (store.students.some((s) => s.id === Number(idText))) {
       errors.id = 'That student number already exists.'
     }
   }
@@ -147,7 +148,7 @@ function handleSubmit() {
   if (isEditing) {
     store.updateStudent(props.student.id, fields)
     emit('saved')
-  } else if (store.addStudent({ id: form.id, ...fields })) {
+  } else if (store.addStudent({ id: Number(form.id), ...fields })) {
     emit('saved')
   } else {
     errors.id = 'That student number already exists.'
