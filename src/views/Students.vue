@@ -9,27 +9,22 @@ import { useStudentsStore } from '../stores/students'
 import { storeToRefs } from 'pinia'
 import { usePagination } from "../composables/usePagination.js";
 
-const columnWidths = computed(() => {
-  const widths = {}
-  columns.forEach((col) => {
-    const longestValue = Math.max(
-        ...studentRows.value.map((student) => String(student[col.key]).length)
-    )
-    const longest = Math.max(longestValue, col.label.length, 8)
-    widths[col.key] = `calc(${longest}ch + 3rem)`
-  })
-  return widths
-})
+const columns = [
+  { key: 'name', label: 'Name' },
+  { key: 'email', label: 'Email' },
+  { key: 'academicYear', label: 'Academic Year (S.Y.)' },
+  { key: 'yearLevel', label: 'Year Level' },
+  { key: 'course', label: 'Course' },
+  { key: 'section', label: 'Section' },
+]
 
-const sortColumn = ref(null)
-const sortDirection = ref('desc')
+const defaultKeys = columns.map((col) => col.key)
+const pageSizeOptions = [5, 10, 25]
+const pageSizeChoices = pageSizeOptions.map((size) => ({ value: size, label: String(size) }))
+const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
+
 const studentsStore = useStudentsStore()
 const { selectedSectionId, sections } = storeToRefs(studentsStore)
-
-const sectionStudents = computed(() => {
-  if (selectedSectionId.value === null) return studentRows.value
-  return studentRows.value.filter((student) => student.sectionId === selectedSectionId.value)
-})
 
 const studentRows = computed(() => {
   return studentsStore.students.map((student) => ({
@@ -38,18 +33,77 @@ const studentRows = computed(() => {
   }))
 })
 
+const sectionStudents = computed(() => {
+  if (selectedSectionId.value === null) return studentRows.value
+  return studentRows.value.filter((student) => student.sectionId === selectedSectionId.value)
+})
+
 const sectionChoices = computed(() => [
   { value: null, label: 'All Students' },
-    ...sections.value.map((section) => ({
-      value: section.id,
-      label: section.label,
-    })),
+    ...sections.value.map((section) => ({value: section.id, label: section.label })),
 ])
+
+const columnWidths = computed(() => {
+  const widths = {}
+  columns.forEach((col) => {
+    const longestValue = studentRows.value.reduce(
+        (max, student) => Math.max(max, String(student[col.key]).length),
+        0
+    )
+    const longest = Math.max(longestValue, col.label.length, 8)
+    widths[col.key] = `calc($[longest]ch + 3rem)`
+  })
+  return widths
+})
+
+const visibleKeys = ref([...defaultKeys])
+const visibleColumns = computed(() => {
+  return columns.filter((col) => visibleKeys.value.includes(col.key))
+})
+
+const filters = reactive(Object.fromEntries(columns.map((col) => [col.key, ''])))
+
+const filteredStudents = computed(() => {
+  const active = columns
+      .filter((col) => filters[col.key])
+      .map((col) => ({ key: col.key, query: filters[col.key].toLowerCase() }))
+  if (active.length === 0) return sectionStudents.value
+
+  return sectionStudents.value.filter((student) =>
+    active.every(({ key, query }) => String(student[key]).toLowerCase().includes(query))
+  )
+})
+
+const sortColumn = ref(null)
+const sortDirection = ref('asc')
+
+const sortedStudents = computed(() => {
+  if (!sortColumn.value) return filteredStudents.value
+
+  const column = sortColumn.value
+  const sign = sortDirection.value === 'asc' ? 1 : -1
+
+  return [...filteredStudents.value].sort(
+      (a, b) => sign * collator.compare(String(a[column]), String(b[column]))
+  )
+})
+
+const pageSize = ref(10)
+const {
+  currentPage,
+    totalPages,
+    pagedItems: pagedStudents,
+    rangeStart,
+    rangeEnd,
+    prev: prevPage,
+    next: nextPage,
+} = usePagination(sortedStudents, pageSize)
 
 const showColumnMenu = ref(false)
 const showAddModal = ref(false)
 const editingStudent = ref(null)
 const removingStudent = ref(null)
+const columnMenuRef = ref(null)
 
 function closeForm() {
   showAddModal.value = false
@@ -62,66 +116,9 @@ function confirmRemove() {
   editingStudent.value = null
 }
 
-const columns = [
-  { key: 'name', label: 'Name' },
-  { key: 'email', label: 'Email' },
-  { key: 'academicYear', label: 'Academic Year (S.Y.)' },
-  { key: 'yearLevel', label: 'Year Level' },
-  { key: 'course', label: 'Course' },
-  { key: 'section', label: 'Section' },
-]
-const defaultKeys = columns.map((col) => col.key)
-const resetKeys = []
-const visibleKeys = ref([...defaultKeys])
-const visibleColumns = computed(() => {
-  return columns.filter((col) => visibleKeys.value.includes(col.key))
-})
-
-const filters = reactive(Object.fromEntries(columns.map((col) => [col.key, ''])))
-
-const filteredStudents = computed(() => {
-  return sectionStudents.value.filter((student) => {
-    return columns.every((col) => {
-      const value = String(student[col.key]).toLowerCase()
-      const query = filters[col.key].toLowerCase()
-      return value.includes(query)
-    })
-  })
-})
-
-const sortedStudents = computed(() => {
-  if (!sortColumn.value) return filteredStudents.value
-
-  const column = sortColumn.value
-  const direction = sortDirection.value
-
-  return [...filteredStudents.value].sort((a, b) => {
-    const valA = a[column]
-    const valB = b[column]
-
-    return direction === 'asc'
-      ? String(valA).localeCompare(String(valB), undefined, { numeric: true })
-        : String(valB).localeCompare(String(valA), undefined, { numeric: true })
-  })
-})
-
-const pageSizeOptions = [5, 10, 25]
-const pageSizeChoices = pageSizeOptions.map((size) => ({ value: size, label: String(size) }))
-const pageSize = ref(10)
-
-const {
-  currentPage,
-    totalPages,
-    pagedItems: pagedStudents,
-    rangeStart,
-    rangeEnd,
-    prev: prevPage,
-    next: nextPage,
-} = usePagination(sortedStudents, pageSize)
-
 function toggleSort(column) {
   if (sortColumn.value === column) {
-    sortDirection.value = sortDirection.value === 'desc' ? 'asc' : 'desc'
+    sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc'
   } else {
     sortColumn.value = column
     sortDirection.value = 'asc'
@@ -129,11 +126,17 @@ function toggleSort(column) {
 }
 
 function selectAll() {
-  visibleKeys.value = columns.map((col) => col.key)
+  visibleKeys.value = [...defaultKeys]
 }
 
 function resetColumns() {
-  visibleKeys.value = [...resetKeys]
+  visibleKeys.value = []
+}
+
+function handleClickOutside(event) {
+  if (columnMenuRef.value && !columnMenuRef.value.contains(event.target)) {
+    showColumnMenu.value = false
+  }
 }
 
 watch(visibleKeys, (keys) => {
@@ -143,19 +146,9 @@ watch(visibleKeys, (keys) => {
   if (!keys.includes(sortColumn.value)) sortColumn.value = null
 }, { deep: true })
 
-watch(
-    [filters, sortColumn, sortDirection, selectedSectionId, pageSize],
-    () => {
-      currentPage.value = 1
-    }
-)
-
-const columnMenuRef = ref(null)
-function handleClickOutside(event) {
-  if (columnMenuRef.value && !columnMenuRef.value.contains(event.target)) {
-    showColumnMenu.value = false
-  }
-}
+watch([filters, sortColumn, sortDirection, selectedSectionId, pageSize], () => {
+  currentPage.value = 1
+})
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
@@ -212,7 +205,9 @@ onBeforeUnmount(() => {
             </button>
             <div v-if="showColumnMenu"
                  class="absolute max-w-[85vw] w-full flex flex-col gap-1 z-20 pl-4 pr-4 py-4 rounded bg-white border border-gray-300">
-              <p class="text-sm">Select which columns to display:</p>
+              <p class="text-sm">
+                Select which columns to display:
+              </p>
               <div class="flex gap-2 font-medium text-sm">
                 <button type="button"
                         class="w-full border border-gray-300 hover:bg-gray-100 rounded pl-2 pr-2 py-1"
@@ -236,6 +231,7 @@ onBeforeUnmount(() => {
             </div>
           </div>
           <!-- columns END -->
+
           <button type="button"
                   class="w-full sm:w-auto rounded border border-amber-400 bg-amber-400 text-amber-900 text-sm font-medium px-4 py-1 hover:bg-amber-500 hover:border-amber-500 hover:text-amber-900"
                   @click="showAddModal = true">

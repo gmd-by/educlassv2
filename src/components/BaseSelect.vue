@@ -4,7 +4,7 @@ import SvgIcon from './SvgIcon.vue'
 
 const props = defineProps({
   modelValue: { default: null },
-  options: { type: Array, required: true },
+  options: { type: Array, default: () => [] },
   placeholder: { type: String, default: '' },
   invalid: { type: Boolean, default: false },
   size: { type: String, default: 'md' },
