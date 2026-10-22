@@ -101,7 +101,7 @@ onBeforeUnmount(closeMenu)
 <template>
   <div ref="root" class="relative">
     <button type="button"
-            class="flex items-center justify-between w-full gap-2 px-3 text-left bg-white border rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700"
+            class="flex items-center justify-between w-full gap-2 px-3 text-left bg-white border rounded focus:ring-2 focus:ring-emerald-700"
             :class="[
               size === 'sm' ? 'py-1' : 'py-2',
               invalid ? 'border-red-500' : 'border-gray-300',

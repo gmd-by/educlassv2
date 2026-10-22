@@ -21,11 +21,13 @@ function handleSignIn() {
 
 <template>
   <div class="flex flex-col min-h-screen bg-gray-100">
-    <!-- header START -->
+    <!-- #header START -->
     <header class="flex items-center h-[62px] px-6 bg-emerald-700 shadow">
-      <img src="/edulogo.png" alt="EduClass" class="h-7">
+      <img src="/edulogo.png"
+           alt="EduClass"
+           class="h-7">
     </header>
-    <!-- header END -->
+    <!-- #header END -->
 
     <main class="flex flex-1 items-center justify-center">
       <form class="w-full max-w-sm p-8 bg-white rounded shadow"
@@ -38,8 +40,9 @@ function handleSignIn() {
         </label>
         <input id="email"
                v-model="email"
-               type="text"
+               type="email"
                autocomplete="username"
+               required
                class="w-full px-3 py-2 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-emerald-700">
         <label for="password" class="block mb-1 text-sm font-medium text-gray-700">
           Password
@@ -54,6 +57,7 @@ function handleSignIn() {
           Forgot password?
         </button>
         <p v-if="error"
+           role="alert"
            class="mb-4 text-sm text-red-600">
           {{ error }}
         </p>

@@ -22,7 +22,6 @@ const posts = computed(() => announcementsStore.posts)
         <article v-for="post in posts"
                  :key="post.id"
                  class="rounded border border-gray-200 overflow-hidden flex flex-col">
-
           <img :src="post.image || '/newsplaceholder.webp'"
                :alt="post.image ? post.title : ''"
                loading="lazy"

@@ -52,9 +52,13 @@ const SEED_STUDENTS = [
 function loadStudents() {
     try {
         const saved = localStorage.getItem(STORAGE_KEY)
-        if (saved) return JSON.parse(saved)
+        if (saved) {
+            const parsed = JSON.parse(saved)
+            if (Array.isArray(parsed)) return parsed
+            console.warn('Error: Saved student data is not a list. Using the default list.')
+        }
     } catch {
-        console.warn('Could not read saved students. Using the default list.')
+        console.warn('Error: Could not read saved students. Using the default list.')
     }
     return structuredClone(SEED_STUDENTS)
 }
@@ -70,7 +74,7 @@ export const useStudentsStore = defineStore('students', () => {
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(students.value))
         } catch {
-            console.warn('Could not save students: browser storage is full.')
+            console.warn('Error: Could not save students to browser storage.')
         }
     }
 

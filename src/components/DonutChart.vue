@@ -37,6 +37,7 @@ const slices = computed(() => {
     <div class="p-4 flex flex-col xl:flex-row items-center gap-4 flex-1">
       <div class="relative h-24 w-24 shrink-0">
         <svg viewBox="0 0 100 100"
+             aria-hidden="true"
              class="h-full w-full -rotate-90">
           <circle v-for="(slice, index) in slices"
                   :key="slice.key"

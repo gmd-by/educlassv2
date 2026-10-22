@@ -4,7 +4,7 @@ export function usePagination(items, pageSize) {
     const currentPage = ref(1)
 
     const totalPages = computed(() => {
-        return Math.max(1, Math.ceil(items.value,length / pageSize.value))
+        return Math.max(1, Math.ceil(items.value.length / pageSize.value))
     })
 
     const pagedItems = computed(() => {
@@ -21,7 +21,7 @@ export function usePagination(items, pageSize) {
     })
 
     function prev() {
-        if (currentPage.value > 1) currentPage.value
+        if (currentPage.value > 1) currentPage.value--
     }
 
     function next() {

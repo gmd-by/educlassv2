@@ -25,7 +25,7 @@ function handleSignOut() {
 <template>
   <div class="flex h-screen">
     <!-- sidebar START -->
-    <aside class="flex flex-col justify-between overflow-y-auto w-56 gap-4 p-4 font-medium text-white bg-emerald-700">
+    <aside class="flex flex-col justify-between overflow-y-auto w-56 shrink-0 gap-4 p-4 font-medium text-white bg-emerald-700">
       <nav class="space-y-2">
         <RouterLink to="/dashboard" class="flex items-center mb-5 ps-2.5">
           <img src="/edulogo.png" alt="EduClass" class="h-7">
@@ -49,7 +49,7 @@ function handleSignOut() {
     </aside>
     <!-- sidebar END -->
 
-    <main class="flex flex-2 flex-col overflow-y-auto bg-gray-100">
+    <main class="flex flex-1 min-w-0 flex-col overflow-y-auto bg-gray-100">
       <!-- header START -->
       <div class="sticky top-0 z-10 flex shrink-0 items-center h-[62px] px-6 bg-white shadow">
         <span class="font-semibold text-gray-700">{{ pageName }}</span>

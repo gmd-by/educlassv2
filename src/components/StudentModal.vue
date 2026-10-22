@@ -44,12 +44,10 @@ const fileInput = ref(null)
 
 function startsIrregular() {
   if (!isEditing) return false
-  const idText = String(form.id).trim()
-  if (!/^\d+$/.test(idText) || Number(idText) <= 0) {
-    errors.id = 'Enter a student number (digits only).'
-  } else if (store.students.some((s) => s.id === Number(idText))) {
-    errors.id = 'That student number already exists.'
-  }
+  const section = sectionsById.value.get(form.sectionId)
+  if (!section) return false
+  return form.course !== section.courseName ||
+      form.yearLevel !== YEAR_LABELS[section.yearLevel - 1]
 }
 
 const irregular = ref(startsIrregular())
@@ -118,7 +116,7 @@ function validate() {
       errors.id = 'That student number already exists.'
     }
   }
-  if (!form.name/trim()) errors.name = 'Enter a full name.'
+  if (!form.name.trim()) errors.name = 'Enter a full name.'
 
   const emailName = form.emailName.trim()
   if (!emailName) {
@@ -180,9 +178,13 @@ function handleSubmit() {
           <table class="w-full table-fixed">
             <tbody>
             <tr>
-              <td class="w-36 pt-[15px] pr-3 font-medium align-top">NAME</td>
+              <td class="w-36 pt-[15px] pr-3 font-medium align-top">
+                <label for="student-name">NAME</label>
+                NAME
+              </td>
               <td class="py-1.5">
-                <input v-model="form.name"
+                <input id="student-name"
+                       v-model="form.name"
                        type="text"
                        :class="[INPUT_CLASS, borderClass('name')]">
                 <p v-if="errors.name" class="mt-1 text-xs text-red-600">{{ errors.name }}</p>

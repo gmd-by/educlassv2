@@ -51,7 +51,7 @@ const columnWidths = computed(() => {
         0
     )
     const longest = Math.max(longestValue, col.label.length, 8)
-    widths[col.key] = `calc($[longest]ch + 3rem)`
+    widths[col.key] = `calc(${longest}ch + 3rem)`
   })
   return widths
 })
@@ -168,7 +168,7 @@ onBeforeUnmount(() => {
       </RouterLink>
       <div class="flex flex-col flex-1 min-h-0 bg-white rounded shadow">
 
-        <!-- header START -->
+        <!-- #header START -->
         <div class="relative shrink-0 rounded-t bg-emerald-700">
           <div class="absolute inset-y-0 right-0 w-64 overflow-hidden rounded-tr pointer-events-none">
             <svg xmlns="http://www.w3.org/2000/svg"
@@ -182,7 +182,7 @@ onBeforeUnmount(() => {
             Student Management
           </h2>
 
-        <!-- toolbar START -->
+        <!-- #toolbar START -->
         <div class="relative flex flex-wrap items-center gap-4 px-4 py-4">
 
           <!-- class/section toggle START -->
@@ -190,9 +190,9 @@ onBeforeUnmount(() => {
                       :options="sectionChoices"
                       size="sm"
                       class="w-full sm:w-72 text-sm font-medium"/>
-          <!-- class/section toggle END -->
+          <!-- #class/section toggle END -->
 
-          <!-- columns START -->
+          <!-- #columns START -->
           <div ref="columnMenuRef"
                class="relative w-full sm:w-72">
             <button type="button"
@@ -230,7 +230,7 @@ onBeforeUnmount(() => {
               </label>
             </div>
           </div>
-          <!-- columns END -->
+          <!-- #columns END -->
 
           <button type="button"
                   class="w-full sm:w-auto rounded border border-amber-400 bg-amber-400 text-amber-900 text-sm font-medium px-4 py-1 hover:bg-amber-500 hover:border-amber-500 hover:text-amber-900"
@@ -238,12 +238,12 @@ onBeforeUnmount(() => {
             Add a Student
           </button>
         </div>
-        <!-- toolbar END -->
+        <!-- #toolbar END -->
 
           </div>
-        <!-- header END -->
+        <!-- #header END -->
 
-        <!-- table START -->
+        <!-- #table START -->
         <div class="overflow-auto flex-1 min-h-0">
           <template v-if="visibleColumns.length > 0">
             <table class="min-w-max w-full text-sm text-left">
@@ -283,10 +283,11 @@ onBeforeUnmount(() => {
                   <div class="relative">
                     <input v-model="filters[col.key]"
                            class="w-full bg-gray-50 border border-gray-300 rounded pl-7 pr-2 py-1 text-sm font-normal">
-                    <button type="button"
-                            class="absolute left-1.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                      <SvgIcon name="searchlogo" class="h-3.5 w-3.5"/>
-                    </button>
+                    <span aria-hidden="true"
+                          class="absolute left-1.5 top-[calc(50%_+_1px)] -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                      <SvgIcon name="searchlogo"
+                               class="h-3.5 w-3.5"/>
+                    </span>
                   </div>
                 </th>
                 <th class="sticky right-0 z-10 w-14 bg-gray-100 px-2 pb-2 shadow-[inset_1px_0_0_#e5e7eb]"></th>
@@ -328,9 +329,9 @@ onBeforeUnmount(() => {
             Nothing to see here. Select one or more columns to return display.
           </div>
         </div>
-        <!-- table END -->
+        <!-- #table END -->
 
-        <!-- footer START -->
+        <!-- #footer START -->
         <div class="flex flex-wrap items-center justify-between gap-3 shrink-0 px-4 py-3 text-sm text-gray-600 border-t border-gray-200">
           <span>Showing {{ rangeStart }}-{{ rangeEnd }} of {{ sortedStudents.length }}</span>
           <div class="flex flex-wrap items-center gap-2">
@@ -351,7 +352,7 @@ onBeforeUnmount(() => {
             </button>
           </div>
         </div>
-        <!-- footer END-->
+        <!-- #footer END-->
 
       </div>
     </div>
