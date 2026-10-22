@@ -46,6 +46,7 @@ const studentsPerSection = computed(() => {
   return studentsStore.sections.map((section) => ({
     key: section.id,
     label: section.label,
+    count: studentsStore.students.filter((s) => s.sectionId === section.id).length,
   }))
 })
 
@@ -99,17 +100,17 @@ function checkOverflow() {
 }
 
 function fitPostsToHeight() {
-  const list = postListRef.valueOf()
+  const list = postListRef.value
   if (!list || !list.firstElementChild) return
   if (expandedIds.value.length > 0) return
 
-  const isWide = window.matchMedia('(min-width: 1024px').matches
+  const isWide = window.matchMedia('(min-width: 1024px)').matches
   if (!isWide) {
     postsPerPage.value = 2
     return
   }
-const fit = Math.floor(list.clientHeight / list.firstElementChild.offsetHeight)
-postsPerPage.value = Math.max(2, fit)
+  const fit = Math.floor(list.clientHeight / list.firstElementChild.offsetHeight)
+  postsPerPage.value = Math.max(2, fit)
 }
 
 function handleResize() {
@@ -157,12 +158,14 @@ onBeforeUnmount(() => {
               </label>
               <div class="flex gap-2">
                 <input id="student-search"
+                       v-model="query"
                        @keyup.enter="handleLookup"
                        type="text"
+                       inputmode="numeric"
                        placeholder="Student ID"
                        class="flex-1 border border-gray-300 rounded px-3 py-2 selection:bg-emerald-100"/>
                 <button type="button"
-                        @click="handleLookup()"
+                        @click="handleLookup"
                         class="bg-emerald-700 text-sm text-white font-medium rounded-lg px-4 py-2 hover:bg-emerald-900">
                   Enter
                 </button>
