@@ -6,7 +6,8 @@ const routes = [
     { path: '/login', component: () => import('../views/Login.vue') },
     { path: '/dashboard', component: () => import('../views/Dashboard.vue'), meta: { requiresAuth: true } },
     { path: '/students', component: () => import('../views/Students.vue'), meta: { requiresAuth: true } },
-    { path: '/announcements', component: () => import('../views/Announcements.vue'), meta: { requiresAuth: true } }
+    { path: '/announcements', component: () => import('../views/Announcements.vue'), meta: { requiresAuth: true } },
+    { path: '/pathMatch(.*)*', redirect: '/dashboard' },
 ]
 
 export const router = createRouter({
