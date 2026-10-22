@@ -50,11 +50,11 @@ const studentsPerSection = computed(() => {
 })
 
 const studentsPerCourse = computed(() => {
-  const course = [...new Set(studentsStore.students.map((s) => s/course))]
+  const courses = [...new Set(studentsStore.students.map((s) => s.course))]
   return courses.map((course) => ({
     key: course,
     label: course,
-    count: studentsStore.students.filter((s) => s.course === course).length,
+    count: studentsStore.students.filter((s) => s.course === course).length
   }))
 })
 
