@@ -44,10 +44,12 @@ const fileInput = ref(null)
 
 function startsIrregular() {
   if (!isEditing) return false
-  const section = sectionsById.value.get(props.student.sectionId)
-  return !section
-      || props.student.course !== section.courseName
-      || props.student.yearLevel !== YEAR_LABELS[section.yearLevel - 1]
+  const idText = String(form.id).trim()
+  if (!/^\d+$/.test(idText) || Number(idText) <= 0) {
+    errors.id = 'Enter a student number (digits only).'
+  } else if (store.students.some((s) => s.id === Number(idText))) {
+    errors.id = 'That student number already exists.'
+  }
 }
 
 const irregular = ref(startsIrregular())
@@ -108,8 +110,7 @@ async function handlePhotoChange(event) {
 
 function validate() {
   Object.keys(errors).forEach((key) => delete errors[key])
-
-  if (!isEditing) {if (!isEditing) {
+  if (!isEditing) {
     const idText = String(form.id).trim()
     if (!/^\d+$/.test(idText) || Number(idText) <= 0) {
       errors.id = 'Enter a student number.'
@@ -117,7 +118,7 @@ function validate() {
       errors.id = 'That student number already exists.'
     }
   }
-  if (!form.name.trim()) errors.name = 'Enter a full name.'
+  if (!form.name/trim()) errors.name = 'Enter a full name.'
 
   const emailName = form.emailName.trim()
   if (!emailName) {
